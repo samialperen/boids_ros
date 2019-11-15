@@ -29,6 +29,8 @@ Panels:
     Name: Time
     SyncMode: 0
     SyncSource: ""
+Toolbars:
+  toolButtonStyle: 2
 Visualization Manager:
   Class: ""
   Displays:
@@ -221,7 +223,7 @@ Visualization Manager:
       Marker Topic: /robot_0/markers
       Name: MarkerArray0
       Namespaces:
-        robot_0: true
+        {}
       Queue Size: 6
       Value: true
     - Class: rviz/MarkerArray
@@ -229,7 +231,7 @@ Visualization Manager:
       Marker Topic: /robot_1/markers
       Name: MarkerArray1
       Namespaces:
-        robot_1: true
+        {}
       Queue Size: 6
       Value: true
     - Class: rviz/MarkerArray
@@ -237,7 +239,7 @@ Visualization Manager:
       Marker Topic: /robot_2/markers
       Name: MarkerArray2
       Namespaces:
-        robot_2: true
+        {}
       Queue Size: 6
       Value: true
     - Class: rviz/MarkerArray
@@ -245,7 +247,7 @@ Visualization Manager:
       Marker Topic: /robot_3/markers
       Name: MarkerArray3
       Namespaces:
-        robot_3: true
+        {}
       Queue Size: 6
       Value: true
     - Class: rviz/MarkerArray
@@ -253,7 +255,7 @@ Visualization Manager:
       Marker Topic: /robot_4/markers
       Name: MarkerArray4
       Namespaces:
-        robot_4: true
+        {}
       Queue Size: 6
       Value: true
     - Class: rviz/MarkerArray
@@ -261,7 +263,7 @@ Visualization Manager:
       Marker Topic: /robot_5/markers
       Name: MarkerArray5
       Namespaces:
-        robot_5: true
+        {}
       Queue Size: 6
       Value: true
     - Class: rviz/MarkerArray
@@ -269,7 +271,7 @@ Visualization Manager:
       Marker Topic: /robot_6/markers
       Name: MarkerArray6
       Namespaces:
-        robot_6: true
+        {}
       Queue Size: 6
       Value: true
   Enabled: true
@@ -333,5 +335,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1855
-  X: 1985
+  X: 65
   Y: 24

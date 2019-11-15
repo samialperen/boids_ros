@@ -29,7 +29,7 @@ total_num_of_robots = 13
 
 
 #################### Read Bag File ######################################
-bag = rosbag.Bag('example3.bag') #Read bag
+bag = rosbag.Bag('../bagfiles/example4.bag') #Read bag
 
 ############## General parameters obtained from rosbag
 # The data between start_time and end_time will be analyzed
@@ -109,6 +109,7 @@ for robot_idx in range(1,total_num_of_robots): #start from robot_1
          
         
 
+print(df_leader_angles.shape)
 print(boids_angles[1].shape)
 print(boids_angles[2].shape)
 print(boids_angles[3].shape)
