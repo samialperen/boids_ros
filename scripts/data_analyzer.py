@@ -97,36 +97,61 @@ for robot_idx in range(1,total_num_of_robots): #start from robot_1
                                                     , t.to_sec()]
             row_idx += 1
     
-    # This part is to make sure that all obtained data is synchorized
-    #if boids_angles[robot_idx].shape[0] > leader_angle_msg_size:
-    #    print("ERROR")
-    #    d = boids_angles[robot_idx].shape[0] - leader_angle_msg_size #number of rows to delete
-    #    # We are deleting first n rows i.e. we will take rows only starting from index n 
-    #    boids_angles[robot_idx] = boids_angles[robot_idx].iloc[d:,]       
-    #elif boids_angles[robot_idx].shape[0] < leader_angle_msg_size:
-    #    d = leader_angle_msg_size - boids_angles[robot_idx].shape[0] #number of rows to delete
-    #    df_leader_angles = df_leader_angles.iloc[d:,]
+    ## This part is to make sure that all obtained data is synchorized
+    if boids_angles[robot_idx].shape[0] > leader_angle_msg_size:
+        d = boids_angles[robot_idx].shape[0] - leader_angle_msg_size #number of rows to delete
+        print(d)
+        print(boids_angles[robot_idx]['t'][0])
+        print(df_leader_angles['t'][0])
+        for _ in range(d):
+            print("inside for")
+            if boids_angles[robot_idx]['t'][0] != df_leader_angles['t'][0]:
+                # We are deleting first row
+                print("delete first")
+                boids_angles[robot_idx] = boids_angles[robot_idx].iloc[1:,].reset_index(drop=True)
+            #    #boids_angles[robot_idx].drop(boids_angles[robot_idx].index[0])
+            else:
+                # We need to delete last row
+                print("delete last")
+                #total_row_number = boids_angles[robot_idx].shape[0] 
+                boids_angles[robot_idx] = boids_angles[robot_idx][:-1]
+                #boids_angles[robot_idx].drop(boids_angles[robot_idx].tail(1))
+    elif boids_angles[robot_idx].shape[0] < leader_angle_msg_size:
+        d = leader_angle_msg_size - boids_angles[robot_idx].shape[0] #number of rows to delete
+        df_leader_angles = df_leader_angles.iloc[d:,].reset_index()
          
         
 
-print(df_leader_angles.shape)
-print(boids_angles[1].shape)
-print(boids_angles[2].shape)
-print(boids_angles[3].shape)
-print(boids_angles[4].shape)
-print(boids_angles[5].shape)
-print(boids_angles[6].shape)
-print(boids_angles[7].shape)
-print(boids_angles[8].shape)
-print(boids_angles[9].shape)
-print(boids_angles[10].shape)
-print(boids_angles[11].shape)
-print(boids_angles[12].shape)
+#print(df_leader_angles.shape)
+#print(boids_angles[1].shape)
+#print(boids_angles[2].shape)
+#print(boids_angles[3].shape)
+#print(boids_angles[4].shape)
+#print(boids_angles[5].shape)
+#print(boids_angles[6].shape)
+#print(boids_angles[7].shape)
+#print(boids_angles[8].shape)
+#print(boids_angles[9].shape)
+#print(boids_angles[10].shape)
+#print(boids_angles[11].shape)
+#print(boids_angles[12].shape)
 
 print(df_leader_angles)
 print(boids_angles[1])
 print(boids_angles[2])
-#print(df_leader_angles['angle'][100])
+print(boids_angles[3])
+print(boids_angles[4])
+print(boids_angles[5])
+print(boids_angles[6])
+print(boids_angles[7])
+print(boids_angles[8])
+print(boids_angles[9])
+print(boids_angles[10])
+print(boids_angles[11])
+print(boids_angles[12])
+
+
+
 
 
 
@@ -139,17 +164,6 @@ for robot_idx in range(1,total_num_of_robots):
     boids_rel2leader_poses[robot_idx] = get_distance(df_leader_poses, boids_poses[robot_idx]) 
 
 
-
-#print(df_leader)
-#print(boids[2])
-#print(boids_rel2leader[2])
-
-#print(boids[10])
-     
-      
-
-
-#print( df_robot1[['x','y']]- df_leader[['x','y']] )
 
 
 bag.close()
