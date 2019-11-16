@@ -38,8 +38,7 @@ class ReynoldsController(object):
         my_agent = data[0].array[0]         # odometry data for this agent is first in list
         nearest_agents = data[0].array[1:]  # odometry data for neighbors follows
         obstacles = data[1].poses           # store obstacles
-        #leader = self.leader              # leader (robot_0) position and orientation 
-        rel2leader = data[2].poses
+        rel2leader = data[2].poses          # relative position to leader
 
         if self.params_set:
             # Compute agent's velocity and publish the command.

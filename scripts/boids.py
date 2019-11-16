@@ -101,95 +101,96 @@ class Boid(object):
 
     def update_parameters(self, params):
         """Save Reynolds controller parameters in class variables."""
-        self.alignment_factor = params['alignment_factor']
-        self.cohesion_factor = params['cohesion_factor']
-        self.separation_factor = params['separation_factor']
-        self.avoid_factor = params['avoid_factor']
+        self.rule1_weight = params['cohesion_factor']
+        self.rule2_weight = params['separation_factor']
+        self.rule3_weight = params['alignment_factor']
+        self.obstacle_weight = params['avoid_factor']
         self.max_speed = params['max_speed']
         self.max_force = params['max_force']
         self.friction = params['friction']
-        self.crowd_radius = params['crowd_radius']
+        self.desired_seperation = params['crowd_radius']
         self.search_radius = params['search_radius']
         self.avoid_radius = params['avoid_radius']
 
         # Scaling is calculated so that force is maximal when agent is
         # 0.85 * search_radius away from obstacle.
-        self.avoid_scaling = 1 / ((0.85 * self.search_radius) ** 2 * self.max_force)
+        #self.avoid_scaling = 1 / ((0.85 * self.search_radius) ** 2 * self.max_force)
 
         # Scaling is calculated so that cohesion and separation forces
         # are equal when agents are crowd_radius apart.
-        self.separation_scaling = self.search_radius / self.crowd_radius ** 3 / self.max_force
+        #self.separation_scaling = self.search_radius / self.crowd_radius ** 3 / self.max_force
 
-        rospy.loginfo(rospy.get_caller_id() + " -> Parameters updated")
-        rospy.logdebug('cohesion_factor:  %s', self.cohesion_factor)
-        rospy.logdebug('alignment_factor:  %s', self.alignment_factor)
-        rospy.logdebug('separation_factor:  %s', self.separation_factor)
-        rospy.logdebug('avoid_factor:  %s', self.avoid_factor)
-        rospy.logdebug('max_speed:  %s', self.max_speed)
-        rospy.logdebug('max_force:  %s', self.max_force)
-        rospy.logdebug('friction:  %s', self.friction)
-        rospy.logdebug('crowd_radius:  %s', self.crowd_radius)
-        rospy.logdebug('search_radius:  %s', self.search_radius)
-        rospy.logdebug('avoid_radius:  %s', self.avoid_radius)
+        #rospy.loginfo(rospy.get_caller_id() + " -> Parameters updated")
+        #rospy.logdebug('cohesion_factor:  %s', self.cohesion_factor)
+        #rospy.logdebug('alignment_factor:  %s', self.alignment_factor)
+        #rospy.logdebug('separation_factor:  %s', self.separation_factor)
+        #rospy.logdebug('avoid_factor:  %s', self.avoid_factor)
+        #rospy.logdebug('max_speed:  %s', self.max_speed)
+        #rospy.logdebug('max_force:  %s', self.max_force)
+        #rospy.logdebug('friction:  %s', self.friction)
+        #rospy.logdebug('crowd_radius:  %s', self.crowd_radius)
+        #rospy.logdebug('search_radius:  %s', self.search_radius)
+        #rospy.logdebug('avoid_radius:  %s', self.avoid_radius)
 
-    def compute_alignment(self, nearest_agents):
-        """Return alignment component."""
-        mean_velocity = Vector2()
-        steer = Vector2()
+    def rule1(self, nearest_agents): #Cohesion
+        center_of_mass = Vector2()        
+        com_direction = Vector2()
+        # Find mean position of neighboring agents.
+        for b in nearest_agents:
+            boid_position = get_agent_position(b)
+            center_of_mass += boid_position
+
+        # Magnitude of force is proportional to agents' distance 
+        # from the center of mass.
+        # Force should be applied in the direction of com
+        if nearest_agents:
+            com_direction = center_of_mass / len(nearest_agents)
+            #rospy.logdebug("cohesion*:    %s", direction)
+            d = com_direction.norm()
+            com_direction.set_mag((self.max_force * (d / self.search_radius)))
+        
+        return com_direction
+
+    def rule2(self, nearest_agents): #Seperation
+        
+        c = Vector2()
+        N = 0 #Total boid number
+
+        for b in nearest_agents:
+            boid_position = get_agent_position(b)
+            d = boid_position.norm()
+            if d < self.desired_seperation:
+                N += 1
+                boid_position *= -1        # Force towards outside
+                boid_position.normalize()  # Normalize to get only direction.
+                # magnitude is proportional to inverse square of d
+                # where d is the distance between agents
+                boid_position = boid_position / (d**2)
+                c += boid_position
+
+        if N:            
+            c /= N #average
+            c.limit(2 * self.max_force)  # 2 * max_force gives this rule a slight priority.
+        
+        return c
+    
+    def rule3(self, nearest_agents): #Alignment
+        perceived_velocity = Vector2()
+        pv = Vector2()
         # Find mean direction of neighboring agents.
-        for agent in nearest_agents:
-            agent_velocity = get_agent_velocity(agent)
-            mean_velocity += agent_velocity
-        rospy.logdebug("alignment*:   %s", mean_velocity)
+        for boid in nearest_agents:
+            boid_velocity = get_agent_velocity(boid)
+            perceived_velocity += boid_velocity #mean perceived 
 
         # Steer toward calculated mean direction with maximum velocity.
         if nearest_agents:
-            mean_velocity.set_mag(self.max_speed)
-            steer = mean_velocity - self.velocity
-            steer.limit(self.max_force)
-        return steer
+            perceived_velocity.set_mag(self.max_speed)
+            pv = perceived_velocity - self.velocity
+            pv.limit(self.max_force)
+        return pv
 
-    def compute_cohesion(self, nearest_agents):
-        """Return cohesion component."""
-        mean_position = Vector2()
-        direction = Vector2()
-        # Find mean position of neighboring agents.
-        for agent in nearest_agents:
-            agent_position = get_agent_position(agent)
-            mean_position += agent_position
-
-        # Apply force in the direction of calculated mean position.
-        # Force is proportional to agents' distance from the mean.
-        if nearest_agents:
-            direction = mean_position / len(nearest_agents)
-            rospy.logdebug("cohesion*:    %s", direction)
-            d = direction.norm()
-            direction.set_mag((self.max_force * (d / self.search_radius)))
-        return direction
-
-    def compute_separation(self, nearest_agents):
-        """Return separation component."""
-        direction = Vector2()
-        count = 0
-
-        # Calculate repulsive force for each neighboring agent in sight.
-        for agent in nearest_agents:
-            agent_position = get_agent_position(agent)
-            d = agent_position.norm()
-            if d < self.crowd_radius:
-                count += 1
-                agent_position *= -1        # Make vector point away from other agent.
-                agent_position.normalize()  # Normalize to get only direction.
-                # Vector's magnitude is proportional to inverse square of the distance between agents.
-                agent_position = agent_position / (self.separation_scaling * d**2)
-                direction += agent_position
-
-        if count:
-            # Devide by number of close-by agents to get average force.
-            direction /= count
-            direction.limit(2 * self.max_force)  # 2 * max_force gives this rule a slight priority.
-        rospy.logdebug("separation*:  %s", direction)
-        return direction
+    
+    
 
     def compute_avoids(self, avoids):
         """
@@ -279,25 +280,25 @@ class Boid(object):
             rospy.logdebug("old_velocity: %s", self.velocity)
 
             # Compute all the components.
-            alignment = self.compute_alignment(nearest_agents)
-            cohesion = self.compute_cohesion(nearest_agents)
-            separation = self.compute_separation(nearest_agents)
-            avoid = self.compute_avoids(avoids)
+            v1 = self.rule1(nearest_agents) #cohesion
+            v2 = self.rule2(nearest_agents) #seperation
+            v3 = self.rule3(nearest_agents) #alignment
+            avoid = self.compute_avoids(avoids) 
 
             leader = self.compute_leader_following(rel2leader)
-
-            rospy.logdebug("alignment:    %s", alignment)
-            rospy.logdebug("cohesion:     %s", cohesion)
-            rospy.logdebug("separation:   %s", separation)
-            rospy.logdebug("avoid:        %s", avoid)
+            
+            #rospy.logdebug("cohesion:     %s", v1)
+            #rospy.logdebug("separation:   %s", v2)
+            #rospy.logdebug("alignment:    %s", v3)
+            #rospy.logdebug("avoid:        %s", avoid)
 
             # Add components together and limit the output.
             force = Vector2()
-            force += alignment * self.alignment_factor
-            force += cohesion * self.cohesion_factor
-            force += separation * self.separation_factor
-            force += avoid * self.avoid_factor
-            force += leader
+            force += v1 * self.rule1_weight
+            force += v2 * self.rule2_weight
+            force += v3 * self.rule3_weight
+            force += avoid * self.obstacle_weight
+            force += leader * self.leader_weight
            
             force.limit(self.max_force)
 
@@ -315,9 +316,9 @@ class Boid(object):
             self.velocity += acceleration / self.frequency
             self.velocity.limit(self.max_speed)
 
-            rospy.logdebug("force:        %s", force)
-            rospy.logdebug("acceleration: %s", acceleration / self.frequency)
-            rospy.logdebug("velocity:     %s\n", self.velocity)
+            #rospy.logdebug("force:        %s", force)
+            #rospy.logdebug("acceleration: %s", acceleration / self.frequency)
+            #rospy.logdebug("velocity:     %s\n", self.velocity)
 
             # Return the the velocity as Twist message.
             vel = Twist()
@@ -326,10 +327,11 @@ class Boid(object):
 
             # Pack all components for Rviz visualization.
             # Make sure these keys are the same as the ones in `util.py`.
-            self.viz_components['alignment'] = alignment * self.alignment_factor
-            self.viz_components['cohesion'] = cohesion * self.cohesion_factor
-            self.viz_components['separation'] = separation * self.separation_factor
-            self.viz_components['avoid'] = avoid * self.avoid_factor
+            self.viz_components['cohesion'] = v1 * self.rule1_weight
+            self.viz_components['separation'] = v2 * self.rule2_weight
+            self.viz_components['alignment'] = v3 * self.rule3_weight
+            self.viz_components['avoid'] = avoid * self.obstacle_weight
+            self.viz_components['leader'] = leader * self.leader_weight
             self.viz_components['acceleration'] = acceleration / self.frequency
             self.viz_components['velocity'] = self.velocity
             self.viz_components['estimated'] = self.old_velocity
