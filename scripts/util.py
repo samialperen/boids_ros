@@ -189,8 +189,7 @@ class MarkerSet(object):
         self.visualization = MarkerArray()
 
         # Make sure these keys are the same as the ones in `boids.py`
-        #keys = ['alignment', 'cohesion', 'separation', 'avoid', 'leader', 'acceleration', 'velocity', 'estimated']
-        keys = ['alignment', 'leader']
+        keys = ['alignment', 'cohesion', 'separation', 'avoid', 'leader', 'acceleration', 'velocity', 'estimated']        
         self.markers = dict.fromkeys(keys)
 
         marker_id = 0
@@ -249,26 +248,3 @@ class MarkerSet(object):
             return angle/iter
         return 0
 
-class MAFilter(object):
-    # TODO: remove if not necessary
-    """Implementation of a moving average filter with variable window length."""
-    def __init__(self, win_length):
-        """
-        Initialize empty window for averaging.
-
-        Args:
-            win_length: length of a window
-        """
-        # Window is initialized with NaNs so that the average would be correct
-        # during the first few steps while the window is not yet full
-        self.window = np.array([np.nan] * win_length)
-
-    def step(self, value):
-        """
-        Add new value at the end of the window, shift older values to the left
-        and return the average.
-        """
-        self.window[:-1] = self.window[1:]
-        self.window[-1] = value
-        # np.nanmean returns mean value while ignoring NaNs
-        return np.nanmean(self.window)

@@ -28,13 +28,13 @@ class DynReconf():
                         Alignment: {alignment_factor}
                         Cohesion: {cohesion_factor}
                         Separation: {separation_factor}
-                        Avoid: {avoid_factor}
+                        Obstacle: {avoid_factor}
                         Max speed: {max_speed}
                         Max force: {max_force}
                         Friction: {friction}
-                        Crowd radius: {crowd_radius}
-                        Search radius: {search_radius}
-                        Avoid radius: {avoid_radius}""".format(**config))
+                        Desired seperation: {crowd_radius}
+                        Horizon: {search_radius}
+                        Obstacle radius: {avoid_radius}""".format(**config))
         return config
 
 

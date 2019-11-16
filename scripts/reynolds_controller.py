@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import rospy
-import pandas as pd
 import message_filters as mf
 from dynamic_reconfigure.msg import Config
 from geometry_msgs.msg import Twist, PoseArray, PoseStamped, Pose
@@ -66,9 +65,9 @@ class ReynoldsController(object):
 
     def param_callback(self, data):
         """Call method for updating flocking parameters from server."""
-        param_names = ['alignment_factor', 'cohesion_factor', 'separation_factor', 'avoid_factor',
-                       'max_speed', 'max_force', 'friction', 'crowd_radius',
-                       'search_radius', 'avoid_radius']
+        param_names = ['alignment_weight', 'cohesion_weight', 'separation_weight', 'obstacle_weight',
+                       'leader_weight', 'max_speed', 'max_force', 'friction', 'desired_seperation',
+                       'horizon', 'avoid_radius']
         # Dictionary for passing parameters.
         param_dict = {param: rospy.get_param('/dyn_reconf/' + param) for param in param_names}
         self.agent.update_parameters(param_dict)

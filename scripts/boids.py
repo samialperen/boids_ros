@@ -100,37 +100,18 @@ class Boid(object):
         self.viz_components = {}
 
     def update_parameters(self, params):
-        """Save Reynolds controller parameters in class variables."""
-        self.rule1_weight = params['cohesion_factor']
-        self.rule2_weight = params['separation_factor']
-        self.rule3_weight = params['alignment_factor']
-        self.obstacle_weight = params['avoid_factor']
+        self.rule1_weight = params['cohesion_weight']
+        self.rule2_weight = params['separation_weight']
+        self.rule3_weight = params['alignment_weight']
+        self.obstacle_weight = params['obstacle_weight']
+        self.leader_weight = params['leader_weight']
         self.max_speed = params['max_speed']
         self.max_force = params['max_force']
         self.friction = params['friction']
-        self.desired_seperation = params['crowd_radius']
-        self.search_radius = params['search_radius']
+        self.desired_seperation = params['desired_seperation']
+        self.horizon = params['horizon']
         self.avoid_radius = params['avoid_radius']
-
-        # Scaling is calculated so that force is maximal when agent is
-        # 0.85 * search_radius away from obstacle.
-        #self.avoid_scaling = 1 / ((0.85 * self.search_radius) ** 2 * self.max_force)
-
-        # Scaling is calculated so that cohesion and separation forces
-        # are equal when agents are crowd_radius apart.
-        #self.separation_scaling = self.search_radius / self.crowd_radius ** 3 / self.max_force
-
-        #rospy.loginfo(rospy.get_caller_id() + " -> Parameters updated")
-        #rospy.logdebug('cohesion_factor:  %s', self.cohesion_factor)
-        #rospy.logdebug('alignment_factor:  %s', self.alignment_factor)
-        #rospy.logdebug('separation_factor:  %s', self.separation_factor)
-        #rospy.logdebug('avoid_factor:  %s', self.avoid_factor)
-        #rospy.logdebug('max_speed:  %s', self.max_speed)
-        #rospy.logdebug('max_force:  %s', self.max_force)
-        #rospy.logdebug('friction:  %s', self.friction)
-        #rospy.logdebug('crowd_radius:  %s', self.crowd_radius)
-        #rospy.logdebug('search_radius:  %s', self.search_radius)
-        #rospy.logdebug('avoid_radius:  %s', self.avoid_radius)
+     
 
     def rule1(self, nearest_agents): #Cohesion
         center_of_mass = Vector2()        
@@ -147,7 +128,7 @@ class Boid(object):
             com_direction = center_of_mass / len(nearest_agents)
             #rospy.logdebug("cohesion*:    %s", direction)
             d = com_direction.norm()
-            com_direction.set_mag((self.max_force * (d / self.search_radius)))
+            com_direction.set_mag((self.max_force * (d / self.horizon)))
         
         return com_direction
 

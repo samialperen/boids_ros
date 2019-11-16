@@ -52,11 +52,11 @@ class NearestSearch(object):
 
     def param_callback(self, data):
         """Update search parameters from server."""
-        while not rospy.has_param('/dyn_reconf/search_radius'):
+        while not rospy.has_param('/dyn_reconf/horizon'):
             rospy.sleep(0.1)
 
-        self.search_radius = rospy.get_param('/dyn_reconf/search_radius')
-        self.r = int(self.search_radius / self.map_resolution)
+        self.horizon = rospy.get_param('/dyn_reconf/horizon')
+        self.r = int(self.horizon / self.map_resolution)
 
     def robot_callback(self, *data):
         """
@@ -88,7 +88,7 @@ class NearestSearch(object):
                 # Distance between robot_position and neighbor_position
                 d = math.sqrt(pow(robot_position.x - neighbor_position.x, 2)  
                               + pow(robot_position.y - neighbor_position.y, 2))
-                if d > 0 and d <= self.search_radius:
+                if d > 0 and d <= self.horizon:
                     rel_neighbor_pos = deepcopy(neighbor)
                     rel_neighbor_pos.pose.pose.position.x = neighbor_position.x - robot_position.x
                     rel_neighbor_pos.pose.pose.position.y = neighbor_position.y - robot_position.y
