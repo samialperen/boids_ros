@@ -14,12 +14,22 @@ def get_distance(a, b):
     # a, b --> pandas dataframes, inputs
     # output --> difference panda dataframe which contains
     # eucledian distances for all times
-    difference = pd.DataFrame(columns=['distance','t'])
-    difference['t'] = a['t']
+    distance = pd.DataFrame(columns=['distance','t'])
+    distance['t'] = a['t']
     x_dif_square = np.square(a['x']-b['x'])
     y_dif_square = np.square(a['y']-b['y'])
-    difference['distance'] = np.sqrt(x_dif_square + y_dif_square)
-    return difference
+    distance['distance'] = np.sqrt(x_dif_square + y_dif_square)
+    return distance
+
+# This function returns |a-b| 
+def get_abs_difference(a, b):
+    # a, b --> pandas dataframes, inputs
+    # output --> |a-b|
+
+    difference = pd.DataFrame(columns=['angle','t'])
+    difference['t'] = a['t']
+    difference['angle'] = abs(a['angle']-b['angle'])   
+    return difference    
 
 
 #################### Parameters #########################################
@@ -100,19 +110,13 @@ for robot_idx in range(1,total_num_of_robots): #start from robot_1
     ## This part is to make sure that all obtained data is synchorized
     if boids_angles[robot_idx].shape[0] > leader_angle_msg_size:
         d = boids_angles[robot_idx].shape[0] - leader_angle_msg_size #number of rows to delete
-        print(d)
-        print(boids_angles[robot_idx]['t'][0])
-        print(df_leader_angles['t'][0])
         for _ in range(d):
-            print("inside for")
             if boids_angles[robot_idx]['t'][0] != df_leader_angles['t'][0]:
                 # We are deleting first row
-                print("delete first")
                 boids_angles[robot_idx] = boids_angles[robot_idx].iloc[1:,].reset_index(drop=True)
             #    #boids_angles[robot_idx].drop(boids_angles[robot_idx].index[0])
             else:
                 # We need to delete last row
-                print("delete last")
                 #total_row_number = boids_angles[robot_idx].shape[0] 
                 boids_angles[robot_idx] = boids_angles[robot_idx][:-1]
                 #boids_angles[robot_idx].drop(boids_angles[robot_idx].tail(1))
@@ -156,14 +160,36 @@ print(boids_angles[12])
 
 
 #################### Calculate Metrics ######################################
-# Calculate relative distance to leader for each robot for all the time
+
+
+##### Calculate relative distance to leader for each robot for all the time
 boids_rel2leader_poses = {} # Dictionary for all boids distances to leader
 # E.g. boids_rel2leader[2] will contain distance of robot_2 to leader for all the times
 # boids_rel2leader[2] structure will be an pd dataframe with columns--> distance and t
 for robot_idx in range(1,total_num_of_robots):
-    boids_rel2leader_poses[robot_idx] = get_distance(df_leader_poses, boids_poses[robot_idx]) 
+    boids_rel2leader_poses[robot_idx] = get_distance(df_leader_poses, boids_poses[robot_idx])
 
 
+##### Calculate relative angles to leader for each robot for all the time
+boids_rel2leader_angles = {} # Dictionary for all boids angles relative to leader
+# E.g. boids_rel2leader[2] will contain distance of robot_2 to leader for all the times
+# boids_rel2leader[2] structure will be an pd dataframe with columns--> distance and t
+for robot_idx in range(1,total_num_of_robots):
+    boids_rel2leader_angles[robot_idx] = get_abs_difference(df_leader_angles,boids_angles[robot_idx]) 
+
+
+print(boids_rel2leader_angles[1])
+print(boids_rel2leader_angles[2])
+print(boids_rel2leader_angles[3])
+print(boids_rel2leader_angles[4])
+print(boids_rel2leader_angles[5])
+print(boids_rel2leader_angles[6])
+print(boids_rel2leader_angles[7])
+print(boids_rel2leader_angles[8])
+print(boids_rel2leader_angles[9])
+print(boids_rel2leader_angles[10])
+print(boids_rel2leader_angles[11])
+print(boids_rel2leader_angles[12])
 
 
 bag.close()
