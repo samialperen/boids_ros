@@ -8,7 +8,6 @@ import rospy
 import numpy as np
 import pandas as pd
 
-
 # This function is used to measure euclidian distance between pd dataframes
 def get_distance(a, b):
     # a, b --> pandas dataframes, inputs
@@ -33,7 +32,9 @@ def get_abs_difference(a, b):
 
 
 #################### Parameters #########################################
-seperation_threshold = 2.0
+separation_threshold = 0.5
+alignment_threshold = 10.0
+cohesion_threshold = 3.7
 #total_num_of_robots = rospy.get_param("/num_of_robots")
 total_num_of_robots = 13
 
@@ -126,39 +127,6 @@ for robot_idx in range(1,total_num_of_robots): #start from robot_1
          
         
 
-#print(df_leader_angles.shape)
-#print(boids_angles[1].shape)
-#print(boids_angles[2].shape)
-#print(boids_angles[3].shape)
-#print(boids_angles[4].shape)
-#print(boids_angles[5].shape)
-#print(boids_angles[6].shape)
-#print(boids_angles[7].shape)
-#print(boids_angles[8].shape)
-#print(boids_angles[9].shape)
-#print(boids_angles[10].shape)
-#print(boids_angles[11].shape)
-#print(boids_angles[12].shape)
-
-print(df_leader_angles)
-print(boids_angles[1])
-print(boids_angles[2])
-print(boids_angles[3])
-print(boids_angles[4])
-print(boids_angles[5])
-print(boids_angles[6])
-print(boids_angles[7])
-print(boids_angles[8])
-print(boids_angles[9])
-print(boids_angles[10])
-print(boids_angles[11])
-print(boids_angles[12])
-
-
-
-
-
-
 #################### Calculate Metrics ######################################
 
 
@@ -178,18 +146,54 @@ for robot_idx in range(1,total_num_of_robots):
     boids_rel2leader_angles[robot_idx] = get_abs_difference(df_leader_angles,boids_angles[robot_idx]) 
 
 
-print(boids_rel2leader_angles[1])
-print(boids_rel2leader_angles[2])
-print(boids_rel2leader_angles[3])
-print(boids_rel2leader_angles[4])
-print(boids_rel2leader_angles[5])
-print(boids_rel2leader_angles[6])
-print(boids_rel2leader_angles[7])
-print(boids_rel2leader_angles[8])
-print(boids_rel2leader_angles[9])
-print(boids_rel2leader_angles[10])
-print(boids_rel2leader_angles[11])
-print(boids_rel2leader_angles[12])
+##### Separation Metric 
+Q_sep_nominator = 0.0
+for robot_idx in range(1,total_num_of_robots):
+    t_sep = 0.0 #for each boid we are calculating separately
+    total_sep_violation = 0 #Number of time instants one boid violates seperation
+    seperation_check = boids_rel2leader_poses[robot_idx]['distance'] < separation_threshold
+    total_sep_violation = boids_rel2leader_poses[robot_idx]['t'][seperation_check].shape[0]
+    print("Seperation violation: %d" %(total_sep_violation))
+    if total_sep_violation != 0:
+        t_sep = total_sep_violation * 0.1 #There is 0.1 time difference between time instants
+        Q_sep_nominator += t_sep
+
+Q_sep = Q_sep_nominator / total_time #Quality of seperation
+
+##### Cohesion Metric 
+Q_coh_nominator = 0.0
+for robot_idx in range(1,total_num_of_robots):
+    t_coh = 0.0 #for each boid we are calculating separately
+    total_coh_violation = 0 #number of time instants one boid violates cohesion
+    cohesion_check = boids_rel2leader_poses[robot_idx]['distance'] > cohesion_threshold
+    total_coh_violation = boids_rel2leader_poses[robot_idx]['t'][cohesion_check].shape[0]
+    print("Cohesion violation: %d" %(total_coh_violation))
+    if total_coh_violation != 0:
+        t_coh = total_coh_violation * 0.1 #There is 0.1 time difference between time instants
+        Q_coh_nominator += t_coh
+
+Q_coh = Q_coh_nominator / total_time #Quality of seperation
+
+
+
+
+
+pd.set_option('display.max_rows', 1000)
+
+#print(Q_sep_nominator)
+print(boids_rel2leader_poses[1])
+print(boids_rel2leader_poses[2])
+print(boids_rel2leader_poses[3])
+print(boids_rel2leader_poses[4])
+print(boids_rel2leader_poses[5])
+print(boids_rel2leader_poses[6])
+print(boids_rel2leader_poses[7])
+print(boids_rel2leader_poses[8])
+print(boids_rel2leader_poses[9])
+print(boids_rel2leader_poses[10])
+print(boids_rel2leader_poses[11])
+print(boids_rel2leader_poses[12])
+print(Q_coh_nominator)
 
 
 bag.close()

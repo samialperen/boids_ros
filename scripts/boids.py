@@ -104,7 +104,8 @@ class Boid(object):
         self.rule2_weight = params['separation_weight']
         self.rule3_weight = params['alignment_weight']
         self.obstacle_weight = params['obstacle_weight']
-        self.leader_weight = params['leader_weight']
+        self.leader_weight = 1.0
+         #self.leader_weight = params['leader_weight']
         self.max_speed = params['max_speed']
         self.max_force = params['max_force']
         self.friction = params['friction']
@@ -281,7 +282,7 @@ class Boid(object):
             force += avoid * self.obstacle_weight
             force += leader * self.leader_weight
            
-            force.limit(self.max_force)
+            #force.limit(self.max_force)
 
             # If agent is moving, apply constant friction force.
             # If agent's velocity is less then friction / 2, it would get
