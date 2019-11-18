@@ -9,7 +9,7 @@ from visualization_msgs.msg import MarkerArray
 
 from boids import Boid
 from util import MarkerSet
-from sphero_formation.msg import OdometryArray
+from boids_ros.msg import OdometryArray
 
 
 class ReynoldsController(object):
@@ -66,7 +66,7 @@ class ReynoldsController(object):
     def param_callback(self, data):
         """Call method for updating flocking parameters from server."""
         param_names = ['alignment_weight', 'cohesion_weight', 'separation_weight', 'obstacle_weight',
-                       'leader_weight', 'max_speed', 'max_force', 'friction', 'desired_seperation',
+                       'leader_weight', 'max_speed', 'max_force', 'friction', 'desired_separation',
                        'horizon', 'avoid_radius']
         # Dictionary for passing parameters.
         param_dict = {param: rospy.get_param('/dyn_reconf/' + param) for param in param_names}

@@ -10,7 +10,7 @@ from copy import deepcopy
 from dynamic_reconfigure.msg import Config
 from geometry_msgs.msg import PoseArray, Pose, PoseStamped
 from nav_msgs.msg import Odometry, OccupancyGrid
-from sphero_formation.msg import OdometryArray
+from boids_ros.msg import OdometryArray
 
 class NearestSearch(object):
     """

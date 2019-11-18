@@ -3,7 +3,7 @@
 
 import rospy
 from dynamic_reconfigure.server import Server
-from sphero_formation.cfg import ReynoldsConfig
+from boids_ros.cfg import ReynoldsConfig
 
 
 class DynReconf():
@@ -25,15 +25,16 @@ class DynReconf():
         """Display all parameters when changed and signal to update."""
         rospy.loginfo("[Dynamic reconfigure] => \n" +
                       """\tReconfigure Request:
-                        Alignment: {alignment_factor}
-                        Cohesion: {cohesion_factor}
-                        Separation: {separation_factor}
-                        Obstacle: {avoid_factor}
+                        Alignment: {alignment_weight}
+                        Cohesion: {cohesion_weight}
+                        Separation: {separation_weight}
+                        Obstacle: {obstacle_weight}
+                        Leader: {leader_weight}
                         Max speed: {max_speed}
                         Max force: {max_force}
                         Friction: {friction}
-                        Desired seperation: {crowd_radius}
-                        Horizon: {search_radius}
+                        Desired seperation: {desired_separation}
+                        Horizon: {horizon}
                         Obstacle radius: {avoid_radius}""".format(**config))
         return config
 

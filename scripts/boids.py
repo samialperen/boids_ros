@@ -104,12 +104,12 @@ class Boid(object):
         self.rule2_weight = params['separation_weight']
         self.rule3_weight = params['alignment_weight']
         self.obstacle_weight = params['obstacle_weight']
-        self.leader_weight = 1.0
-         #self.leader_weight = params['leader_weight']
+        #self.leader_weight = 1.0
+        self.leader_weight = params['leader_weight']
         self.max_speed = params['max_speed']
         self.max_force = params['max_force']
         self.friction = params['friction']
-        self.desired_seperation = params['desired_seperation']
+        self.desired_separation = params['desired_separation']
         self.horizon = params['horizon']
         self.avoid_radius = params['avoid_radius']
      
@@ -141,7 +141,7 @@ class Boid(object):
         for b in nearest_agents:
             boid_position = get_agent_position(b)
             d = boid_position.norm()
-            if d < self.desired_seperation:
+            if d < self.desired_separation:
                 N += 1
                 boid_position *= -1        # Force towards outside
                 boid_position.normalize()  # Normalize to get only direction.
@@ -206,7 +206,7 @@ class Boid(object):
                 count += 1
 
             # For all other obstacles: scale with inverse square law.
-            obst_position = obst_position / (self.avoid_scaling * d**2)
+            obst_position = obst_position / (d**2)
             main_direction += obst_position
 
         if avoids:
@@ -230,7 +230,7 @@ class Boid(object):
             # Force in the direction that minimizes rel_position 2 leader
             # i.e. it should be in the direction of rel2leader
             direction = Vector2() #initiliazes (0,0)
-            direction = rel2leader_position*0.01
+            direction = rel2leader_position # *0.01
             # d = direction.norm()
             # direction.set_mag((self.max_force * d))
         
@@ -269,28 +269,24 @@ class Boid(object):
 
             leader = self.compute_leader_following(rel2leader)
             
-            #rospy.logdebug("cohesion:     %s", v1)
-            #rospy.logdebug("separation:   %s", v2)
-            #rospy.logdebug("alignment:    %s", v3)
-            #rospy.logdebug("avoid:        %s", avoid)
 
             # Add components together and limit the output.
             force = Vector2()
-            force += v1 * self.rule1_weight
-            force += v2 * self.rule2_weight
-            force += v3 * self.rule3_weight
-            force += avoid * self.obstacle_weight
+            #force += v1 * self.rule1_weight
+            #force += v2 * self.rule2_weight
+            #force += v3 * self.rule3_weight
+            #force += avoid * self.obstacle_weight
             force += leader * self.leader_weight
-           
-            #force.limit(self.max_force)
+            
+            force.limit(self.max_force)
 
             # If agent is moving, apply constant friction force.
             # If agent's velocity is less then friction / 2, it would get
             # negative velocity. In this case, just stop it.
-            if self.velocity.norm() > self.friction / 2:
-                force += self.friction * -1 * self.velocity.normalize(ret=True)
-            else:
-                self.velocity = Vector2()
+            #if self.velocity.norm() > self.friction / 2:
+            #    force += self.friction * -1 * self.velocity.normalize(ret=True)
+            #else:
+            #    self.velocity = Vector2()
 
             acceleration = force / self.mass
 
