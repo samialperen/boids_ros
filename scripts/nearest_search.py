@@ -37,19 +37,6 @@ class NearestSearch(object):
         for i in range(self.map_height - 1, -1, -1):
             self.map.append(data.data[i * self.map_width:(i + 1) * self.map_width])
 
-    def pos_to_index(self, x_real, y_real):
-        """Return list (map) indices for given real position coordinates."""
-        col = (x_real - self.map_origin.x) / self.map_resolution
-        row = (self.map_origin.y + self.map_height *
-               self.map_resolution - y_real) / self.map_resolution
-        return int(col), int(row)
-
-    def index_to_pos(self, row, col):
-        """Return real position coordinates for list (map) indices."""
-        x_real = self.map_origin.x + col * self.map_resolution
-        y_real = self.map_origin.y + (self.map_height - row) * self.map_resolution
-        return x_real, y_real
-
     def param_callback(self, data):
         """Update search parameters from server."""
         while not rospy.has_param('/dyn_reconf/horizon'):
@@ -98,38 +85,6 @@ class NearestSearch(object):
             
             #########################################################################
 
-
-            ####################### Obstacles ###################################
-            # Obstacle avoidence part is derived from:
-            # https://github.com/mkrizmancic/sphero_formation/blob/master/scripts/nearest_search.py
-            obstacles = PoseArray()
-            obstacles.header.stamp = time
-
-            # Positions of walls and obstacles are represented as value 100 in
-            # the list `self.map`. First, find the position of the observed
-            # agent in this list in form of an index pair. Then search the list
-            # in specified search radius and return actual positions of the
-            # walls and other obstacles.
-            or_col, or_row = self.pos_to_index(robot_position.x, robot_position.y)
-            # if key == 'sphero_0': print (or_col, or_row)
-            col_range = range(max(0, or_col - self.r), min(self.map_width, or_col + self.r + 1))
-            row_range = range(max(0, or_row - self.r), min(self.map_height, or_row + self.r + 1))
-            for row in row_range:
-                for col in col_range:
-                    # if key == 'sphero_0': print(self.map[row][col]/100, end=' ')
-                    # Check only elements within radius.
-                    # Search obstacles in a circle instead of a square.
-                    if (pow(row - or_row, 2) + pow(col - or_col, 2)) <= pow(self.r, 2):
-                        if self.map[row][col] == 100:
-                            x, y = self.index_to_pos(row, col)
-                            obst = Pose()
-                            obst.position.x = x - robot_position.x
-                            obst.position.y = y - robot_position.y
-                            obstacles.poses.append(obst)
-                
-            self.avoid[robot_name].publish(obstacles)
-            #########################################################################
-       
             ############################## Leader ###############################           
             rel_target = PoseArray() #contains pose of current agent rel to leader
             if robot_name == "robot_0": #leader
@@ -143,8 +98,6 @@ class NearestSearch(object):
                 # with other ROS topics (e.g. .../obstacles .../nearest_robots)
                 rel_target.header.stamp = time #this is important to synchorize
                 rel_target.poses.append(pose_target)
-                print("Leader pose: %f, %f" %(leader.position.x, leader.position.y) )
-                print(robot_name + " %f, %f" %(pose_target.position.x, pose_target.position.y))
                 self.leader[robot_name].publish(rel_target)
             ##################################################################
 
@@ -163,11 +116,6 @@ class NearestSearch(object):
         self.nearest = dict.fromkeys(pub_keys)
         for key in self.nearest.keys():
             self.nearest[key] = rospy.Publisher('/' + key + '/nearest', OdometryArray, queue_size=1)
-
-        # Publisher for locations of walls and obstacles
-        self.avoid = dict.fromkeys(pub_keys)
-        for key in self.avoid.keys():
-            self.avoid[key] = rospy.Publisher('/' + key + '/avoid', PoseArray, queue_size=1)
 
         # Publisher for relative position to leader
         self.leader = dict.fromkeys(pub_keys)

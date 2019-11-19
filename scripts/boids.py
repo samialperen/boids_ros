@@ -172,58 +172,6 @@ class Boid(object):
         return pv
 
     
-    
-
-    def compute_avoids(self, avoids):
-        """
-        Return avoid component.
-
-        This rule consists of two components. The first is active for all
-        obstacles within range and depends on agent's distance from obstacle as
-        well as its aproach angle. Force is maximum when agent approaches the
-        obstacle head-on and minimum if obstacle is to the side of an agent.
-        Second component depends only on distance and only obstacles closer than
-        avoid_radius are taken into account. This is to ensure minimal distance
-        from obstacles at all times.
-        """
-        main_direction = Vector2()
-        safety_direction = Vector2()
-        count = 0
-
-        # Calculate repulsive force for each obstacle in sight.
-        for obst in avoids:
-            obst_position = get_obst_position(obst)
-            d = obst_position.norm()
-            obst_position *= -1        # Make vector point away from obstacle.
-            obst_position.normalize()  # Normalize to get only direction.
-            # Additionally, if obstacle is very close...
-            if d < self.avoid_radius:
-                # Scale lineary so that there is no force when agent is on the
-                # edge of minimum avoiding distance and force is maximum if the
-                # distance from the obstacle is zero.
-                safety_scaling = -2 * self.max_force / self.avoid_radius * d + 2 * self.max_force
-                safety_direction += obst_position * safety_scaling
-                count += 1
-
-            # For all other obstacles: scale with inverse square law.
-            obst_position = obst_position / (d**2)
-            main_direction += obst_position
-
-        if avoids:
-            # Calculate the approach vector.
-            a = angle_diff(self.old_heading, main_direction.arg() + 180)
-            # We mustn't allow scaling to be negative.
-            side_scaling = max(math.cos(math.radians(a)), 0)
-            # Divide by number of obstacles to get average.
-            main_direction = main_direction / len(avoids) * side_scaling
-            safety_direction /= count
-
-        rospy.logdebug("avoids*:      %s", main_direction)
-        # Final force is sum of two componets.
-        # Force is not limited so this rule has highest priority.
-        return main_direction + safety_direction
-
-     
     def compute_leader_following(self,rel2leader):
         for agent in rel2leader:
             rel2leader_position = get_leader_position(agent)
@@ -237,7 +185,7 @@ class Boid(object):
         return direction
 
       
-    def compute_velocity(self, my_agent, nearest_agents, avoids,rel2leader):
+    def compute_velocity(self, my_agent, nearest_agents,rel2leader):
         """Compute total velocity based on all components."""
 
         # While waiting to start, send zero velocity and decrease counter.
@@ -265,7 +213,6 @@ class Boid(object):
             v1 = self.rule1(nearest_agents) #cohesion
             v2 = self.rule2(nearest_agents) #seperation
             v3 = self.rule3(nearest_agents) #alignment
-            avoid = self.compute_avoids(avoids) 
 
             leader = self.compute_leader_following(rel2leader)
             
@@ -275,7 +222,6 @@ class Boid(object):
             force += v1 * self.rule1_weight
             force += v2 * self.rule2_weight
             force += v3 * self.rule3_weight
-            force += avoid * self.obstacle_weight
             force += leader * self.leader_weight
             
             force.limit(self.max_force)
@@ -308,9 +254,9 @@ class Boid(object):
             self.viz_components['cohesion'] = v1 * self.rule1_weight
             self.viz_components['separation'] = v2 * self.rule2_weight
             self.viz_components['alignment'] = v3 * self.rule3_weight
-            self.viz_components['avoid'] = avoid * self.obstacle_weight
+            #self.viz_components['avoid'] = avoid * self.obstacle_weight
             self.viz_components['leader'] = leader * self.leader_weight
-            self.viz_components['acceleration'] = acceleration / self.frequency
-            self.viz_components['velocity'] = self.velocity
-            self.viz_components['estimated'] = self.old_velocity
+            #self.viz_components['acceleration'] = acceleration / self.frequency
+            #self.viz_components['velocity'] = self.velocity
+            #self.viz_components['estimated'] = self.old_velocity
             return vel, self.viz_components

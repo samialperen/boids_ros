@@ -189,7 +189,8 @@ class MarkerSet(object):
         self.visualization = MarkerArray()
 
         # Make sure these keys are the same as the ones in `boids.py`
-        keys = ['alignment', 'cohesion', 'separation', 'avoid', 'leader', 'acceleration', 'velocity', 'estimated']        
+        #keys = ['alignment', 'cohesion', 'separation', 'avoid', 'leader', 'acceleration', 'velocity', 'estimated']        
+        keys = ['alignment', 'cohesion', 'separation', 'leader']        
         self.markers = dict.fromkeys(keys)
 
         marker_id = 0
@@ -211,11 +212,11 @@ class MarkerSet(object):
         self.markers['alignment'].color = ColorRGBA(0, 0, 1, 1)     # blue
         self.markers['cohesion'].color = ColorRGBA(0, 1, 0, 1)      # green
         self.markers['separation'].color = ColorRGBA(1, 0, 0, 1)    # red
-        self.markers['avoid'].color = ColorRGBA(1, 1, 0, 1)         # yellow
-        self.markers['leader'].color = ColorRGBA(0, 1, 1, 1)         # cyan
-        self.markers['acceleration'].color = ColorRGBA(0, 0, 0, 1)  # black
-        self.markers['velocity'].color = ColorRGBA(1, 1, 1, 1)      # white
-        self.markers['estimated'].color = ColorRGBA(1, 0.55, 0, 1)  # orange
+        #self.markers['avoid'].color = ColorRGBA(1, 1, 0, 1)         # yellow
+        self.markers['leader'].color = ColorRGBA(0, 1, 1, 1)         # light blue
+        #self.markers['acceleration'].color = ColorRGBA(0, 0, 0, 1)  # black
+        #self.markers['velocity'].color = ColorRGBA(1, 1, 1, 1)      # white        
+        #self.markers['estimated'].color = ColorRGBA(1, 0.55, 0, 1)  # orange
 
     def update_data(self, values):
         """
