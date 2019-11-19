@@ -131,18 +131,20 @@ class NearestSearch(object):
             #########################################################################
        
             ############################## Leader ###############################           
-            leader = Pose() #contains pose of leader
             rel_target = PoseArray() #contains pose of current agent rel to leader
             if robot_name == "robot_0": #leader
+                leader = Pose() #contains pose of leader
                 leader.position = robot.pose.pose.position
             else:
-                obst_target = Pose()
-                obst_target.position.x = leader.position.x-robot_position.x
-                obst_target.position.y = leader.position.y-robot_position.y
+                pose_target = Pose()
+                pose_target.position.x = leader.position.x-robot_position.x
+                pose_target.position.y = leader.position.y-robot_position.y
                 # getting time to rel_target header is important to synchorize this topic
                 # with other ROS topics (e.g. .../obstacles .../nearest_robots)
                 rel_target.header.stamp = time #this is important to synchorize
-                rel_target.poses.append(obst_target)
+                rel_target.poses.append(pose_target)
+                print("Leader pose: %f, %f" %(leader.position.x, leader.position.y) )
+                print(robot_name + " %f, %f" %(pose_target.position.x, pose_target.position.y))
                 self.leader[robot_name].publish(rel_target)
             ##################################################################
 

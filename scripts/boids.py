@@ -272,10 +272,10 @@ class Boid(object):
 
             # Add components together and limit the output.
             force = Vector2()
-            #force += v1 * self.rule1_weight
-            #force += v2 * self.rule2_weight
-            #force += v3 * self.rule3_weight
-            #force += avoid * self.obstacle_weight
+            force += v1 * self.rule1_weight
+            force += v2 * self.rule2_weight
+            force += v3 * self.rule3_weight
+            force += avoid * self.obstacle_weight
             force += leader * self.leader_weight
             
             force.limit(self.max_force)
