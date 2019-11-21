@@ -45,9 +45,6 @@ class Leader:
         error_margin = 0.1
         vel_msg = Twist()
         while self.calculate_distance(target_pose) >= error_margin:
-            print("x: %f" %(self.pose.position.x))
-            print("y: %f" %(self.pose.position.y))
-            #print(self.calculate_distance(target_pose))
             vel_msg.linear.x = self.linear_vel(target_pose)
             vel_msg.linear.y = 0
             vel_msg.linear.z = 0
@@ -68,18 +65,131 @@ class Leader:
 
         rospy.spin()
 
-    def draw_square(self):
-        start_pose = Pose() #TO DO: Parametrize this
-        start_pose.position.x = 0.0
-        start_pose.position.y = 3.0
-        
-        #print("self_pose")
-        #print(self.pose.position)
-        self.go_desired_pose(start_pose)
-        #if (self.pose.position.x != start_pose.position.x 
-        #        and self.pose.position.y != start_pose.position.y): #end of if condition
-        #    self.go_desired_pose(start_pose) #(0,3) starting position
 
+    def move_forward(self,amount,speed):
+        target_pose = Pose()
+        target_pose.position.x = self.pose.position.x #desired_pose.position.x
+        target_pose.position.y = amount #desired_pose.position.y
+
+        error_margin = 0.1
+        vel_msg = Twist()
+        while self.calculate_distance(target_pose) >= error_margin:
+            vel_msg.linear.x = 0
+            vel_msg.linear.y = speed
+            vel_msg.linear.z = 0
+  
+            vel_msg.angular.x = 0
+            vel_msg.angular.y = 0
+            vel_msg.angular.z = 0
+
+            self.velocity_publisher.publish(vel_msg)
+
+            self.rate.sleep() #publish at the desired rate
+
+
+        #Stop the leader after movement is done
+        vel_msg.linear.x = 0
+        vel_msg.linear.y = 0
+        self.velocity_publisher.publish(vel_msg)
+
+        #rospy.spin()
+
+
+    def move_backward(self,amount,speed):
+        target_pose = Pose()
+        target_pose.position.x = self.pose.position.x #desired_pose.position.x
+        target_pose.position.y = -amount #desired_pose.position.y
+
+        error_margin = 0.1
+        vel_msg = Twist()
+        while self.calculate_distance(target_pose) >= error_margin:
+            vel_msg.linear.x = 0
+            vel_msg.linear.y = -speed
+            vel_msg.linear.z = 0
+  
+            vel_msg.angular.x = 0
+            vel_msg.angular.y = 0
+            vel_msg.angular.z = 0
+
+            self.velocity_publisher.publish(vel_msg)
+
+            self.rate.sleep() #publish at the desired rate
+
+
+        #Stop the leader after movement is done
+        vel_msg.linear.x = 0
+        vel_msg.linear.y = 0
+        self.velocity_publisher.publish(vel_msg)
+
+        #rospy.spin()
+
+
+    def move_right(self,amount,speed):
+        target_pose = Pose()
+        target_pose.position.x = amount #desired_pose.position.x
+        target_pose.position.y = self.pose.position.y #desired_pose.position.y
+
+        error_margin = 0.1
+        vel_msg = Twist()
+        while self.calculate_distance(target_pose) >= error_margin:
+            vel_msg.linear.x = speed
+            vel_msg.linear.y = 0
+            vel_msg.linear.z = 0
+  
+            vel_msg.angular.x = 0
+            vel_msg.angular.y = 0
+            vel_msg.angular.z = 0
+
+            self.velocity_publisher.publish(vel_msg)
+
+            self.rate.sleep() #publish at the desired rate
+
+
+        #Stop the leader after movement is done
+        vel_msg.linear.x = 0
+        vel_msg.linear.y = 0
+        self.velocity_publisher.publish(vel_msg)
+
+        #rospy.spin()
+
+    def move_left(self,amount,speed):
+        target_pose = Pose()
+        target_pose.position.x = -amount #desired_pose.position.x
+        target_pose.position.y = self.pose.position.y #desired_pose.position.y
+        error_margin = 0.1
+        vel_msg = Twist()
+        while self.calculate_distance(target_pose) >= error_margin:           
+            vel_msg.linear.x = -speed
+            vel_msg.linear.y = 0
+            vel_msg.linear.z = 0
+  
+            vel_msg.angular.x = 0
+            vel_msg.angular.y = 0
+            vel_msg.angular.z = 0
+
+            self.velocity_publisher.publish(vel_msg)
+
+            self.rate.sleep() #publish at the desired rate
+
+
+        #Stop the leader after movement is done
+        vel_msg.linear.x = 0
+        vel_msg.linear.y = 0
+        self.velocity_publisher.publish(vel_msg)
+
+        #rospy.spin()        
+            
+
+    def draw_square(self):
+        speed = 0.5
+        self.move_forward(4.0,speed)
+        self.move_left(4.0,speed)
+        self.move_backward(4.0,speed)
+        self.move_right(4.0,speed)
+        self.move_forward(4.0,speed)
+        self.move_left(4.0,speed)
+       
+        rospy.spin()
        
 
 

@@ -7,6 +7,8 @@ import rosbag
 import rospy
 import numpy as np
 import pandas as pd
+import sys #for parser
+
 
 # This function is used to measure euclidian distance between pd dataframes
 def get_distance(a, b):
@@ -40,7 +42,8 @@ total_num_of_robots = 13
 
 
 #################### Read Bag File ######################################
-bag = rosbag.Bag('../bagfiles/deneme1.bag') #Read bag
+bagname = sys.argv[1]
+bag = rosbag.Bag('../bagfiles/' + bagname + '.bag') #Read bag
 
 ############## General parameters obtained from rosbag
 # The data between start_time and end_time will be analyzed
@@ -291,6 +294,10 @@ for robot_idx in range(1,total_num_of_robots):
 
 Q_alig = Q_alig_nominator / total_time #violation of seperation
 
+
+print("Q_sep: %f" %(Q_sep))
+print("Q_coh: %f" %(Q_coh))
+print("Q_alig: %f" %(Q_alig))
 
 
 

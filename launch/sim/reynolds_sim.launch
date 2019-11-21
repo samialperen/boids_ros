@@ -11,9 +11,14 @@
 	</node>
 
 	<!-- Move the leader via recorded rosbag file -->
-	<arg name="rosbag_args" default='$(find boids_ros)/bagfiles/move_leader_0.5.bag'/> 
-	<node pkg="rosbag" type="play" name="rosbag_move_leader" args="$(arg rosbag_args)" output="screen"/>
+	<!-- <arg name="rosbag_args" default='$(find boids_ros)/bagfiles/move_leader_0.5-1.bag'/> --> 
+	<!-- <node pkg="rosbag" type="play" name="rosbag_move_leader" args="$(arg rosbag_args)" output="screen"/> -->
 
+
+	<arg name="node_start_delay" default="2.1" />  
+	<!-- Move leader -->
+	<node pkg="boids_ros" type="leader_controller.py" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' "  name="leader_controller" output="screen"/>
+	
 	<!-- Record Bagfile for data_analyzer -->
 	<arg name="bagname"/>
    	<node pkg="rosbag" type="record" name="rosbag_record" args='-O $(find boids_ros)/bagfiles/$(arg bagname).bag -e "(.*)/odom" "(.*)/cmd_vel"  '/>
