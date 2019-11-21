@@ -81,7 +81,7 @@ for robot_idx in range(1,total_num_of_robots):
     # Remove duplicate time instants and take last one of them as a true value
     boids_poses[robot_idx].drop_duplicates(subset='t', keep = 'last', inplace = True)
     boids_poses[robot_idx] = boids_poses[robot_idx].reset_index(drop=True)
-    min_pose_robot_index = 0 #means leader
+    min_pose_robot_index = 0 # leader
     min_pose_msg_size = leader_pose_msg_size
     if boids_poses[robot_idx].shape[0] < min_pose_msg_size:
         min_pose_msg_size = boids_poses[robot_idx].shape[0]
@@ -136,25 +136,6 @@ if min_pose_robot_index != 0: #leader doesn't have the smallest size
             df_leader_poses = df_leader_poses[:-1]              
 
 
-#print(min_pose_msg_size)
-#print(min_pose_robot_index)
-#print(df_leader_poses)
-#print(boids_poses[1])
-#print(boids_poses[2])
-#print(boids_poses[3])
-#print(boids_poses[4])
-#print(boids_poses[5])
-#print(boids_poses[6])
-#print(boids_poses[7])
-#print(boids_poses[8])
-#print(boids_poses[9])
-#print(boids_poses[10])
-#print(boids_poses[11])
-#print(boids_poses[12])
-
-
-
-
 ############## Read orientations
 # Read leader orientation --> Since it is 2D, we need to subscribe cmd_vel
 # arctan(cmd_vel.linear.y / cmd_vel.linear.x) will give the orientation, i.e. angle 
@@ -169,12 +150,12 @@ for _ , msg, t in bag.read_messages("/robot_0/cmd_vel"):
 df_leader_angles.drop_duplicates(subset='t', keep = 'last', inplace = True)
 df_leader_angles = df_leader_angles.reset_index(drop=True)
 
-# Total number of pose msgs leader published, this will be used to synchorize boids
+# Total number of orientation msgs leader published, this will be used to synchorize boids
 leader_angle_msg_size = df_leader_angles.shape[0] 
 
-boids_angles = {} # Dictionary for all boids poses through time 
-# Example: boids[1] contains all poses for robot_1
-# boids[total_num_of_robots] contains all poses for robot_total_num_of_robots 
+boids_angles = {} # Dictionary for all boids angles through time 
+# Example: boids[1] contains all angles for robot_1
+# boids[total_num_of_robots] contains all angles for robot_total_num_of_robots 
 for robot_idx in range(1,total_num_of_robots): #start from robot_1
     boids_angles[robot_idx] = pd.DataFrame(columns=['angle','t'])
     row_idx = 0
@@ -183,44 +164,32 @@ for robot_idx in range(1,total_num_of_robots): #start from robot_1
                                                     , t.to_sec()]
             row_idx += 1
     
-    ### This part is to make sure that all obtained data is synchorized
-    #if boids_angles[robot_idx].shape[0] > leader_angle_msg_size:
-    #    d = boids_angles[robot_idx].shape[0] - leader_angle_msg_size #number of rows to delete
-    #    for _ in range(d):
-    #        if boids_angles[robot_idx]['t'][0] != df_leader_angles['t'][0]:
-    #            # We are deleting first row
-    #            boids_angles[robot_idx] = boids_angles[robot_idx].iloc[1:,].reset_index(drop=True)
-    #        #    #boids_angles[robot_idx].drop(boids_angles[robot_idx].index[0])
-    #        else:
-    #            # We need to delete last row
-    #            #total_row_number = boids_angles[robot_idx].shape[0] 
-    #            boids_angles[robot_idx] = boids_angles[robot_idx][:-1]
-    #            #boids_angles[robot_idx].drop(boids_angles[robot_idx].tail(1))
-    #elif boids_angles[robot_idx].shape[0] < leader_angle_msg_size:
-    #    d = leader_angle_msg_size - boids_angles[robot_idx].shape[0] #number of rows to delete
-    #    print(leader_angle_msg_size)
-    #    print(boids_angles[robot_idx].shape[0])
-    #    print(d)
-    #    for _ in range(d):
-    #        if boids_angles[robot_idx]['t'][0] != df_leader_angles['t'][0]:
-    #            # We are deleting first row
-    #            df_leader_angles = df_leader_angles.iloc[1:,].reset_index(drop=True)               
-    #            print("Leaderrr")
-    #            print(df_leader_angles)
-    #        else:
-    #            # We need to delete last row                
-    #            #df_leader_angles = df_leader_angles[:-1]
-    #            df_leader_angles = df_leader_angles.iloc[:-1,].reset_index(drop=True)               
-
 for robot_idx in range(1,total_num_of_robots):
     # Remove duplicate time instants and take last one of them as a true value
     boids_angles[robot_idx].drop_duplicates(subset='t', keep = 'last', inplace = True)
     boids_angles[robot_idx] = boids_angles[robot_idx].reset_index(drop=True)
-    min_angle_robot_index = 0 #means leader
+    min_angle_robot_index = 0 #leader
     min_angle_msg_size = leader_angle_msg_size
     if boids_angles[robot_idx].shape[0] < min_angle_msg_size:
         min_angle_msg_size = boids_angles[robot_idx].shape[0]
         min_angle_robot_index = robot_idx
+
+###### Data Check ############ 
+print("################ ANGLE DATA CHECK ############")
+print(df_leader_angles.shape)
+print(boids_angles[1].shape)
+print(boids_angles[2].shape)
+print(boids_angles[3].shape)
+print(boids_angles[4].shape)
+print(boids_angles[5].shape)
+print(boids_angles[6].shape)
+print(boids_angles[7].shape)
+print(boids_angles[8].shape)
+print(boids_angles[9].shape)
+print(boids_angles[10].shape)
+print(boids_angles[11].shape)
+print(boids_angles[12].shape)
+
 
 ## This part is to make sure that all obtained data is synchorized
 for robot_idx in range(1,total_num_of_robots):
@@ -242,7 +211,7 @@ for robot_idx in range(1,total_num_of_robots):
                     # We need to delete last row
                     boids_angles[robot_idx] = boids_angles[robot_idx][:-1]               
 
-if min_anglee_robot_index != 0: #leader doesn't have the smallest size
+if min_angle_robot_index != 0: #leader doesn't have the smallest size
     d = df_leader_angles.shape[0] - min_angle_msg_size #number of rows to delete
     for _ in range(d):
         if df_leader_angles['t'][0] != boids_angles[min_angle_robot_index]['t'][0]:
@@ -291,7 +260,7 @@ for robot_idx in range(1,total_num_of_robots):
         t_sep = total_sep_violation * 0.1 #There is 0.1 time difference between time instants
         Q_sep_nominator += t_sep
 
-Q_sep = Q_sep_nominator / total_time #Quality of seperation
+Q_sep = Q_sep_nominator / total_time #violation of seperation
 
 ##### Cohesion Metric 
 Q_coh_nominator = 0.0
@@ -305,28 +274,26 @@ for robot_idx in range(1,total_num_of_robots):
         t_coh = total_coh_violation * 0.1 #There is 0.1 time difference between time instants
         Q_coh_nominator += t_coh
 
-Q_coh = Q_coh_nominator / total_time #Quality of seperation
+Q_coh = Q_coh_nominator / total_time #violation of seperation
+
+
+##### Alignment Metric
+Q_alig_nominator = 0.0
+for robot_idx in range(1,total_num_of_robots):
+    t_alig = 0.0 #for each boid we are calculating separately
+    total_alig_violation = 0 #number of time instants one boid violates cohesion
+    alignment_check = boids_rel2leader_angles[robot_idx]['angle'] > alignment_threshold
+    total_alig_violation = boids_rel2leader_angles[robot_idx]['t'][alignment_check].shape[0]
+    print("Alignment violation: %d" %(total_alig_violation))
+    if total_alig_violation != 0:
+        t_alig = total_alig_violation * 0.1 #There is 0.1 time difference between time instants
+        Q_alig_nominator += t_alig
+
+Q_alig = Q_alig_nominator / total_time #violation of seperation
 
 
 
 
 
-pd.set_option('display.max_rows', 1000)
-
-#print(Q_sep_nominator)
-#print(boids_rel2leader_poses[1])
-#print(boids_rel2leader_poses[2])
-#print(boids_rel2leader_poses[3])
-#print(boids_rel2leader_poses[4])
-#print(boids_rel2leader_poses[5])
-#print(boids_rel2leader_poses[6])
-#print(boids_rel2leader_poses[7])
-#print(boids_rel2leader_poses[8])
-#print(boids_rel2leader_poses[9])
-#print(boids_rel2leader_poses[10])
-#print(boids_rel2leader_poses[11])
-#print(boids_rel2leader_poses[12])
-#print(Q_coh_nominator)
-
-
+#pd.set_option('display.max_rows', 1000)
 bag.close()
