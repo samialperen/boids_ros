@@ -10,7 +10,15 @@
 		<param name="robot_name" type="string" value="robot"/>
 	</node>
 
-	<!-- Record a bag for debug purposes -->
+	<!-- Move the leader via recorded rosbag file -->
+	<arg name="rosbag_args" default='$(find boids_ros)/bagfiles/move_leader_0.5.bag'/> 
+	<node pkg="rosbag" type="play" name="rosbag_move_leader" args="$(arg rosbag_args)" output="screen"/>
+
+	<!-- Record Bagfile for data_analyzer -->
+	<arg name="bagname"/>
+   	<node pkg="rosbag" type="record" name="rosbag_record" args='-O $(find boids_ros)/bagfiles/$(arg bagname).bag -e "(.*)/odom" "(.*)/cmd_vel"  '/>
+	
+<!-- Record a bag for debug purposes -->
 	<!-- <arg name="rosbag_args" default='-O $(find boids_ros)/bagfiles/sim_test.bag -e "(.*)/odom" '/> -->
 	<!-- <arg name="rosbag_args" default='-O $(find boids_ros)/bagfiles/kalman_test.bag /robot_0/odom /robot_0/debug_est'/> -->
 	<!-- <node pkg="rosbag" type="record" name="rosbag_record" args="$(arg rosbag_args)" output="screen"/> -->

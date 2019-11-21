@@ -40,7 +40,7 @@ total_num_of_robots = 13
 
 
 #################### Read Bag File ######################################
-bag = rosbag.Bag('../bagfiles/example4.bag') #Read bag
+bag = rosbag.Bag('../bagfiles/deneme1.bag') #Read bag
 
 ############## General parameters obtained from rosbag
 # The data between start_time and end_time will be analyzed
@@ -58,6 +58,10 @@ for _ , msg, t in bag.read_messages("/robot_0/odom"):
         df_leader_poses.loc[leader_counter] = [msg.pose.pose.position.x, msg.pose.pose.position.y, t.to_sec()]
         leader_counter += 1
 
+# Remove duplicate time instants and take last one of them as a true value
+df_leader_poses.drop_duplicates(subset='t', keep = 'last', inplace = True)
+df_leader_poses = df_leader_poses.reset_index(drop=True)
+
 # Total number of pose msgs leader published, this will be used to synchorize boids
 leader_pose_msg_size = df_leader_poses.shape[0] 
 
@@ -72,17 +76,84 @@ for robot_idx in range(1,total_num_of_robots): #start from robot_1
                                              , t.to_sec()]
             row_idx += 1
     
-    # This part is to make sure that all obtained data is synchorized
-    if boids_poses[robot_idx].shape[0] > leader_pose_msg_size:
-        d = boids_poses[robot_idx].shape[0] - leader_pose_msg_size #number of rows to delete
-        # We are deleting first n rows i.e. we will take rows only starting from index n 
-        boids_poses[robot_idx] = boids_poses[robot_idx].iloc[d:,]
-    elif boids_poses[robot_idx].shape[0] < leader_pose_msg_size:
-        a = leader_pose_msg_size - boids_poses[robot_idx].shape[0] #number of rows to add 
-        line_to_be_added = boids_poses[robot_idx].iloc[0:1,] #first line of boids
-        for i in range(a):
-            boids_poses[robot_idx] = pd.concat([ line_to_be_added, boids_poses[robot_idx] ]).reset_index(drop = True) 
-        boids_poses[robot_idx].iloc[0:a,2] = df_leader_poses.iloc[0:a,2] #change time
+  
+for robot_idx in range(1,total_num_of_robots):
+    # Remove duplicate time instants and take last one of them as a true value
+    boids_poses[robot_idx].drop_duplicates(subset='t', keep = 'last', inplace = True)
+    boids_poses[robot_idx] = boids_poses[robot_idx].reset_index(drop=True)
+    min_pose_robot_index = 0 #means leader
+    min_pose_msg_size = leader_pose_msg_size
+    if boids_poses[robot_idx].shape[0] < min_pose_msg_size:
+        min_pose_msg_size = boids_poses[robot_idx].shape[0]
+        min_pose_robot_index = robot_idx
+
+###### Data Check ############ 
+print("################ POSE DATA CHECK ############")
+print(df_leader_poses.shape)
+print(boids_poses[1].shape)
+print(boids_poses[2].shape)
+print(boids_poses[3].shape)
+print(boids_poses[4].shape)
+print(boids_poses[5].shape)
+print(boids_poses[6].shape)
+print(boids_poses[7].shape)
+print(boids_poses[8].shape)
+print(boids_poses[9].shape)
+print(boids_poses[10].shape)
+print(boids_poses[11].shape)
+print(boids_poses[12].shape)
+
+
+
+## This part is to make sure that all obtained data is synchorized
+for robot_idx in range(1,total_num_of_robots):
+    if boids_poses[robot_idx].shape[0] > min_pose_msg_size:
+        d = boids_poses[robot_idx].shape[0] - min_pose_msg_size #number of rows to delete
+        for _ in range(d):
+            if min_pose_robot_index == 0: #leader has the smallest size
+                if boids_poses[robot_idx]['t'][0] != df_leader_poses['t'][0]:
+                    # We are deleting first row
+                    boids_poses[robot_idx] = boids_poses[robot_idx].iloc[1:,].reset_index(drop=True)
+                else:
+                    # We need to delete last row
+                    boids_poses[robot_idx] = boids_poses[robot_idx][:-1]  
+            else: # some agent other than leader has the smallest size
+                if boids_poses[robot_idx]['t'][0] != boids_poses[min_pose_robot_index]['t'][0]:
+                    # We are deleting first row
+                    boids_poses[robot_idx] = boids_poses[robot_idx].iloc[1:,].reset_index(drop=True)
+                else:
+                    # We need to delete last row
+                    boids_poses[robot_idx] = boids_poses[robot_idx][:-1]               
+
+if min_pose_robot_index != 0: #leader doesn't have the smallest size
+    d = df_leader_poses.shape[0] - min_pose_msg_size #number of rows to delete
+    for _ in range(d):
+        if df_leader_poses['t'][0] != boids_poses[min_pose_robot_index]['t'][0]:
+            # We are deleting first row
+            df_leader_poses = df_leader_poses.iloc[1:,].reset_index(drop=True)
+        else:
+            # We need to delete last row
+            df_leader_poses = df_leader_poses[:-1]              
+
+
+#print(min_pose_msg_size)
+#print(min_pose_robot_index)
+#print(df_leader_poses)
+#print(boids_poses[1])
+#print(boids_poses[2])
+#print(boids_poses[3])
+#print(boids_poses[4])
+#print(boids_poses[5])
+#print(boids_poses[6])
+#print(boids_poses[7])
+#print(boids_poses[8])
+#print(boids_poses[9])
+#print(boids_poses[10])
+#print(boids_poses[11])
+#print(boids_poses[12])
+
+
+
 
 ############## Read orientations
 # Read leader orientation --> Since it is 2D, we need to subscribe cmd_vel
@@ -93,6 +164,10 @@ for _ , msg, t in bag.read_messages("/robot_0/cmd_vel"):
         df_leader_angles.loc[leader_counter] = [np.degrees(np.arctan2(msg.linear.y,msg.linear.x))
                                                 , t.to_sec()]
         leader_counter += 1
+
+# Remove duplicate time instants and take last one of them as a true value
+df_leader_angles.drop_duplicates(subset='t', keep = 'last', inplace = True)
+df_leader_angles = df_leader_angles.reset_index(drop=True)
 
 # Total number of pose msgs leader published, this will be used to synchorize boids
 leader_angle_msg_size = df_leader_angles.shape[0] 
@@ -108,24 +183,82 @@ for robot_idx in range(1,total_num_of_robots): #start from robot_1
                                                     , t.to_sec()]
             row_idx += 1
     
-    ## This part is to make sure that all obtained data is synchorized
-    if boids_angles[robot_idx].shape[0] > leader_angle_msg_size:
-        d = boids_angles[robot_idx].shape[0] - leader_angle_msg_size #number of rows to delete
+    ### This part is to make sure that all obtained data is synchorized
+    #if boids_angles[robot_idx].shape[0] > leader_angle_msg_size:
+    #    d = boids_angles[robot_idx].shape[0] - leader_angle_msg_size #number of rows to delete
+    #    for _ in range(d):
+    #        if boids_angles[robot_idx]['t'][0] != df_leader_angles['t'][0]:
+    #            # We are deleting first row
+    #            boids_angles[robot_idx] = boids_angles[robot_idx].iloc[1:,].reset_index(drop=True)
+    #        #    #boids_angles[robot_idx].drop(boids_angles[robot_idx].index[0])
+    #        else:
+    #            # We need to delete last row
+    #            #total_row_number = boids_angles[robot_idx].shape[0] 
+    #            boids_angles[robot_idx] = boids_angles[robot_idx][:-1]
+    #            #boids_angles[robot_idx].drop(boids_angles[robot_idx].tail(1))
+    #elif boids_angles[robot_idx].shape[0] < leader_angle_msg_size:
+    #    d = leader_angle_msg_size - boids_angles[robot_idx].shape[0] #number of rows to delete
+    #    print(leader_angle_msg_size)
+    #    print(boids_angles[robot_idx].shape[0])
+    #    print(d)
+    #    for _ in range(d):
+    #        if boids_angles[robot_idx]['t'][0] != df_leader_angles['t'][0]:
+    #            # We are deleting first row
+    #            df_leader_angles = df_leader_angles.iloc[1:,].reset_index(drop=True)               
+    #            print("Leaderrr")
+    #            print(df_leader_angles)
+    #        else:
+    #            # We need to delete last row                
+    #            #df_leader_angles = df_leader_angles[:-1]
+    #            df_leader_angles = df_leader_angles.iloc[:-1,].reset_index(drop=True)               
+
+for robot_idx in range(1,total_num_of_robots):
+    # Remove duplicate time instants and take last one of them as a true value
+    boids_angles[robot_idx].drop_duplicates(subset='t', keep = 'last', inplace = True)
+    boids_angles[robot_idx] = boids_angles[robot_idx].reset_index(drop=True)
+    min_angle_robot_index = 0 #means leader
+    min_angle_msg_size = leader_angle_msg_size
+    if boids_angles[robot_idx].shape[0] < min_angle_msg_size:
+        min_angle_msg_size = boids_angles[robot_idx].shape[0]
+        min_angle_robot_index = robot_idx
+
+## This part is to make sure that all obtained data is synchorized
+for robot_idx in range(1,total_num_of_robots):
+    if boids_angles[robot_idx].shape[0] > min_angle_msg_size:
+        d = boids_angles[robot_idx].shape[0] - min_angle_msg_size #number of rows to delete
         for _ in range(d):
-            if boids_angles[robot_idx]['t'][0] != df_leader_angles['t'][0]:
-                # We are deleting first row
-                boids_angles[robot_idx] = boids_angles[robot_idx].iloc[1:,].reset_index(drop=True)
-            #    #boids_angles[robot_idx].drop(boids_angles[robot_idx].index[0])
-            else:
-                # We need to delete last row
-                #total_row_number = boids_angles[robot_idx].shape[0] 
-                boids_angles[robot_idx] = boids_angles[robot_idx][:-1]
-                #boids_angles[robot_idx].drop(boids_angles[robot_idx].tail(1))
-    elif boids_angles[robot_idx].shape[0] < leader_angle_msg_size:
-        d = leader_angle_msg_size - boids_angles[robot_idx].shape[0] #number of rows to delete
-        df_leader_angles = df_leader_angles.iloc[d:,].reset_index()
-         
+            if min_angle_robot_index == 0: #leader has the smallest size
+                if boids_angles[robot_idx]['t'][0] != df_leader_angles['t'][0]:
+                    # We are deleting first row
+                    boids_angles[robot_idx] = boids_angles[robot_idx].iloc[1:,].reset_index(drop=True)
+                else:
+                    # We need to delete last row
+                    boids_angles[robot_idx] = boids_angles[robot_idx][:-1]  
+            else: # some agent other than leader has the smallest size
+                if boids_angles[robot_idx]['t'][0] != boids_angles[min_angle_robot_index]['t'][0]:
+                    # We are deleting first row
+                    boids_angles[robot_idx] = boids_angles[robot_idx].iloc[1:,].reset_index(drop=True)
+                else:
+                    # We need to delete last row
+                    boids_angles[robot_idx] = boids_angles[robot_idx][:-1]               
+
+if min_anglee_robot_index != 0: #leader doesn't have the smallest size
+    d = df_leader_angles.shape[0] - min_angle_msg_size #number of rows to delete
+    for _ in range(d):
+        if df_leader_angles['t'][0] != boids_angles[min_angle_robot_index]['t'][0]:
+            # We are deleting first row
+            df_leader_angles = df_leader_angles.iloc[1:,].reset_index(drop=True)
+        else:
+            # We need to delete last row
+            df_leader_angles = df_leader_angles[:-1]            
         
+
+
+
+
+
+
+
 
 #################### Calculate Metrics ######################################
 
@@ -181,19 +314,19 @@ Q_coh = Q_coh_nominator / total_time #Quality of seperation
 pd.set_option('display.max_rows', 1000)
 
 #print(Q_sep_nominator)
-print(boids_rel2leader_poses[1])
-print(boids_rel2leader_poses[2])
-print(boids_rel2leader_poses[3])
-print(boids_rel2leader_poses[4])
-print(boids_rel2leader_poses[5])
-print(boids_rel2leader_poses[6])
-print(boids_rel2leader_poses[7])
-print(boids_rel2leader_poses[8])
-print(boids_rel2leader_poses[9])
-print(boids_rel2leader_poses[10])
-print(boids_rel2leader_poses[11])
-print(boids_rel2leader_poses[12])
-print(Q_coh_nominator)
+#print(boids_rel2leader_poses[1])
+#print(boids_rel2leader_poses[2])
+#print(boids_rel2leader_poses[3])
+#print(boids_rel2leader_poses[4])
+#print(boids_rel2leader_poses[5])
+#print(boids_rel2leader_poses[6])
+#print(boids_rel2leader_poses[7])
+#print(boids_rel2leader_poses[8])
+#print(boids_rel2leader_poses[9])
+#print(boids_rel2leader_poses[10])
+#print(boids_rel2leader_poses[11])
+#print(boids_rel2leader_poses[12])
+#print(Q_coh_nominator)
 
 
 bag.close()
