@@ -15,7 +15,7 @@
 	<!-- <node pkg="rosbag" type="play" name="rosbag_move_leader" args="$(arg rosbag_args)" output="screen"/> -->
 
 
-	<arg name="node_start_delay" default="2.1" />  
+	<arg name="node_start_delay" default="1.8" />  
 	<!-- Move leader -->
 	<node pkg="boids_ros" type="leader_controller.py" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' "  name="leader_controller" output="screen"/>
 	

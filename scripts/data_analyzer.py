@@ -34,9 +34,9 @@ def get_abs_difference(a, b):
 
 
 #################### Parameters #########################################
-separation_threshold = 0.5
-alignment_threshold = 10.0
-cohesion_threshold = 3.7
+separation_threshold = 0.7 #in meters
+alignment_threshold = 45.0 # degree
+cohesion_threshold = 2.25  #meter
 #total_num_of_robots = rospy.get_param("/num_of_robots")
 total_num_of_robots = 13
 
@@ -231,7 +231,6 @@ if min_angle_robot_index != 0: #leader doesn't have the smallest size
 
 
 
-
 #################### Calculate Metrics ######################################
 
 
@@ -241,7 +240,8 @@ boids_rel2leader_poses = {} # Dictionary for all boids distances to leader
 # boids_rel2leader[2] structure will be an pd dataframe with columns--> distance and t
 for robot_idx in range(1,total_num_of_robots):
     boids_rel2leader_poses[robot_idx] = get_distance(df_leader_poses, boids_poses[robot_idx])
-
+    print("#########Robot Poses %d" %(robot_idx))
+    print(boids_rel2leader_poses[robot_idx])
 
 ##### Calculate relative angles to leader for each robot for all the time
 boids_rel2leader_angles = {} # Dictionary for all boids angles relative to leader
@@ -249,7 +249,8 @@ boids_rel2leader_angles = {} # Dictionary for all boids angles relative to leade
 # boids_rel2leader[2] structure will be an pd dataframe with columns--> distance and t
 for robot_idx in range(1,total_num_of_robots):
     boids_rel2leader_angles[robot_idx] = get_abs_difference(df_leader_angles,boids_angles[robot_idx]) 
-
+    print("#########Robot Angles %d" %(robot_idx))
+    print(boids_rel2leader_angles[robot_idx])
 
 ##### Separation Metric 
 Q_sep_nominator = 0.0
