@@ -52,7 +52,7 @@ Alignment violation: 189
 Alignment violation: 169
 Alignment violation: 189
 Alignment violation: 147
-
+done
 
 Seperation violation: 0
 Seperation violation: 0
@@ -108,6 +108,8 @@ Alignment violation: 164
 Alignment violation: 154
 Alignment violation: 166
 Alignment violation: 140
+done
+
 
 Seperation violation: 0
 Seperation violation: 0
@@ -163,6 +165,9 @@ Alignment violation: 190
 Alignment violation: 158
 Alignment violation: 202
 Alignment violation: 189
+done
+
+
 
 Seperation violation: 0
 Seperation violation: 0
@@ -218,6 +223,8 @@ Alignment violation: 153
 Alignment violation: 145
 Alignment violation: 142
 Alignment violation: 141
+done
+
 
 
 Seperation violation: 0
