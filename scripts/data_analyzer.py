@@ -38,7 +38,7 @@ separation_threshold = 0.7 #in meters
 alignment_threshold = 45.0 # degree
 cohesion_threshold = 2.25  #meter
 #total_num_of_robots = rospy.get_param("/num_of_robots")
-total_num_of_robots = 13
+total_num_of_robots = 19
 
 
 #################### Read Bag File ######################################
@@ -91,20 +91,20 @@ for robot_idx in range(1,total_num_of_robots):
         min_pose_robot_index = robot_idx
 
 ###### Data Check ############ 
-print("################ POSE DATA CHECK ############")
-print(df_leader_poses.shape)
-print(boids_poses[1].shape)
-print(boids_poses[2].shape)
-print(boids_poses[3].shape)
-print(boids_poses[4].shape)
-print(boids_poses[5].shape)
-print(boids_poses[6].shape)
-print(boids_poses[7].shape)
-print(boids_poses[8].shape)
-print(boids_poses[9].shape)
-print(boids_poses[10].shape)
-print(boids_poses[11].shape)
-print(boids_poses[12].shape)
+#print("################ POSE DATA CHECK ############")
+#print(df_leader_poses.shape)
+#print(boids_poses[1].shape)
+#print(boids_poses[2].shape)
+#print(boids_poses[3].shape)
+#print(boids_poses[4].shape)
+#print(boids_poses[5].shape)
+#print(boids_poses[6].shape)
+#print(boids_poses[7].shape)
+#print(boids_poses[8].shape)
+#print(boids_poses[9].shape)
+#print(boids_poses[10].shape)
+#print(boids_poses[11].shape)
+#print(boids_poses[12].shape)
 
 
 
@@ -178,20 +178,20 @@ for robot_idx in range(1,total_num_of_robots):
         min_angle_robot_index = robot_idx
 
 ###### Data Check ############ 
-print("################ ANGLE DATA CHECK ############")
-print(df_leader_angles.shape)
-print(boids_angles[1].shape)
-print(boids_angles[2].shape)
-print(boids_angles[3].shape)
-print(boids_angles[4].shape)
-print(boids_angles[5].shape)
-print(boids_angles[6].shape)
-print(boids_angles[7].shape)
-print(boids_angles[8].shape)
-print(boids_angles[9].shape)
-print(boids_angles[10].shape)
-print(boids_angles[11].shape)
-print(boids_angles[12].shape)
+#print("################ ANGLE DATA CHECK ############")
+#print(df_leader_angles.shape)
+#print(boids_angles[1].shape)
+#print(boids_angles[2].shape)
+#print(boids_angles[3].shape)
+#print(boids_angles[4].shape)
+#print(boids_angles[5].shape)
+#print(boids_angles[6].shape)
+#print(boids_angles[7].shape)
+#print(boids_angles[8].shape)
+#print(boids_angles[9].shape)
+#print(boids_angles[10].shape)
+#print(boids_angles[11].shape)
+#print(boids_angles[12].shape)
 
 
 ## This part is to make sure that all obtained data is synchorized

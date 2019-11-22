@@ -181,7 +181,7 @@ class Leader:
             
 
     def draw_square(self):
-        speed = 0.6
+        speed = 0.55
         self.move_forward(4.0,speed)
         self.move_left(4.0,speed)
         self.move_backward(4.0,speed)
