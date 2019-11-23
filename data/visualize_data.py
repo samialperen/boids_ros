@@ -1,5 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import scipy.stats as stats
+import pandas as pd
+from statsmodels.stats.multicomp import (pairwise_tukeyhsd,MultiComparison)
 
 """
 Research Question 1 --> Relation between metrics and leader speed
@@ -61,6 +64,64 @@ plt.legend()
 #plt.savefig('leader_velocity.png')
 plt.show()
 
+# One way ANOVA analysis for statistical analysis
+fvalue_sep, pvalue_sep = stats.f_oneway(led_05_sep,led_055_sep,led_06_sep)
+fvalue_coh, pvalue_coh = stats.f_oneway(led_05_coh,led_055_coh,led_06_coh)
+fvalue_align, pvalue_align = stats.f_oneway(led_05_align,led_055_align,led_06_align)
+print("Research Question 1 --> Seperation F and P Value:")
+print(fvalue_sep,pvalue_sep)
+print("Research Question 1 --> Cohesion F and P Value:")
+print(fvalue_coh,pvalue_coh)
+print("Research Question 1 --> Alignment F and P Value:")
+print(fvalue_align,pvalue_align)
+
+# If pvalue < 0.05 --> Apply Tukey's Multi-Comparison Method to
+# find out between which subgroups there is a significant difference
+
+df1 = pd.DataFrame()
+df1['led_05_sep'] = led_05_sep
+df1['led_055_sep'] = led_055_sep
+df1['led_06_sep'] = led_06_sep
+
+df2 = pd.DataFrame()
+df2['led_05_coh'] = led_05_coh
+df2['led_055_coh'] = led_055_coh
+df2['led_06_coh'] = led_06_coh
+
+df3 = pd.DataFrame()
+df3['led_05_align'] = led_05_align
+df3['led_055_align'] = led_055_align
+df3['led_06_align'] = led_06_align
+
+# Stack the data (and rename columns):
+stacked_data1 = df1.stack().reset_index()
+stacked_data1 = stacked_data1.rename(columns={'level_0': 'index',
+                                            'level_1': 'seperation',
+                                            0:'violation metric'})
+stacked_data2 = df2.stack().reset_index()
+stacked_data2 = stacked_data2.rename(columns={'level_0': 'index',
+                                            'level_1': 'cohesion',
+                                            0:'violation metric'})
+
+stacked_data3 = df3.stack().reset_index()
+stacked_data3 = stacked_data3.rename(columns={'level_0': 'index',
+                                            'level_1': 'alignment',
+                                            0:'violation metric'})
+                                    
+#print(stacked_data1)
+MultiComp1 = MultiComparison(stacked_data1['violation metric'],stacked_data1['seperation'])
+MultiComp2 = MultiComparison(stacked_data2['violation metric'],stacked_data2['cohesion'])
+MultiComp3 = MultiComparison(stacked_data3['violation metric'],stacked_data3['alignment'])
+
+#print(MultiComp1.tukeyhsd().summary())
+statistic_txt = open("statistical_test.txt","w") 
+statistic_txt.write(str(MultiComp1.tukeyhsd().summary()))
+statistic_txt.write("\n")
+statistic_txt.write(str(MultiComp2.tukeyhsd().summary()))
+statistic_txt.write("\n") 
+statistic_txt.write(str(MultiComp3.tukeyhsd().summary()))
+statistic_txt.write("\n")  
+#statistic_txt.close() #to change file access modes 
 """
 Research Question 2 --> Relation between metrics and leader weight metric/other metrics
 Controlled Variables: separation threshold = 0.7m , cohesion threshold = 2.25m,
