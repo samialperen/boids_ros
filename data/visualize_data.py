@@ -183,6 +183,63 @@ plt.legend(loc=2, prop={'size': 8})
 #plt.savefig('leader_weight.png')
 plt.show()
 
+
+# One way ANOVA analysis for statistical analysis
+fvalue_sep2, pvalue_sep2 = stats.f_oneway(weight_10_sep,weight_11_sep,weight_12_sep)
+fvalue_coh2, pvalue_coh2 = stats.f_oneway(weight_10_coh,weight_11_coh,weight_12_coh)
+fvalue_align2, pvalue_align2 = stats.f_oneway(weight_10_align,weight_11_align,weight_12_align)
+print("Research Question 2 --> Seperation F and P Value:")
+print(fvalue_sep2,pvalue_sep2)
+print("Research Question 2 --> Cohesion F and P Value:")
+print(fvalue_coh2,pvalue_coh2)
+print("Research Question 2 --> Alignment F and P Value:")
+print(fvalue_align2,pvalue_align2)
+
+# If pvalue < 0.05 --> Apply Tukey's Multi-Comparison Method to
+# find out between which subgroups there is a significant difference
+
+df4 = pd.DataFrame()
+df4['weight_10_sep'] = weight_10_sep
+df4['weight_11_sep'] = weight_11_sep
+df4['weight_12_sep'] = weight_12_sep
+
+df5 = pd.DataFrame()
+df5['weight_10_coh'] = weight_10_coh
+df5['weight_11_coh'] = weight_11_coh
+df5['weight_12_coh'] = weight_12_coh
+
+df6 = pd.DataFrame()
+df6['weight_10_align'] = weight_10_align
+df6['weight_11_align'] = weight_11_align
+df6['weight_12_align'] = weight_12_align
+
+# Stack the data (and rename columns):
+stacked_data4 = df4.stack().reset_index()
+stacked_data4 = stacked_data4.rename(columns={'level_0': 'index',
+                                            'level_1': 'seperation',
+                                            0:'violation metric'})
+stacked_data5 = df5.stack().reset_index()
+stacked_data5 = stacked_data5.rename(columns={'level_0': 'index',
+                                            'level_1': 'cohesion',
+                                            0:'violation metric'})
+
+stacked_data6 = df6.stack().reset_index()
+stacked_data6 = stacked_data6.rename(columns={'level_0': 'index',
+                                            'level_1': 'alignment',
+                                            0:'violation metric'})
+                                    
+#print(stacked_data1)
+MultiComp4 = MultiComparison(stacked_data4['violation metric'],stacked_data4['seperation'])
+MultiComp5 = MultiComparison(stacked_data5['violation metric'],stacked_data5['cohesion'])
+MultiComp6 = MultiComparison(stacked_data6['violation metric'],stacked_data6['alignment'])
+
+statistic_txt.write(str(MultiComp4.tukeyhsd().summary()))
+statistic_txt.write("\n")
+statistic_txt.write(str(MultiComp5.tukeyhsd().summary()))
+statistic_txt.write("\n") 
+statistic_txt.write(str(MultiComp6.tukeyhsd().summary()))
+statistic_txt.write("\n")  
+#statistic_txt.close() #to change file access modes 
 """
 Research Question 3 --> Relation between violation count and total number of agents
 Controlled Variables: separation threshold = 0.7m , cohesion threshold = 2.25m,
