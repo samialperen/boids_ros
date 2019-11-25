@@ -114,7 +114,7 @@ MultiComp2 = MultiComparison(stacked_data2['violation metric'],stacked_data2['co
 MultiComp3 = MultiComparison(stacked_data3['violation metric'],stacked_data3['alignment'])
 
 #print(MultiComp1.tukeyhsd().summary())
-statistic_txt = open("statistical_test.txt","w") 
+statistic_txt = open("statistical_test4.txt","w") 
 statistic_txt.write(str(MultiComp1.tukeyhsd().summary()))
 statistic_txt.write("\n")
 statistic_txt.write(str(MultiComp2.tukeyhsd().summary()))
@@ -505,3 +505,85 @@ plt.axis((x1,x2,0,y2))
 plt.legend() #(loc=2, prop={'size': 8})
 #plt.savefig('19robots.png')
 plt.show()
+
+
+# One way ANOVA analysis for statistical analysis
+total_7_sep = (total_7_sep_robot1 + total_7_sep_robot2 + total_7_sep_robot3 +
+               total_7_sep_robot4 + total_7_sep_robot5 + total_7_sep_robot6)
+total_7_coh = (total_7_coh_robot1 + total_7_coh_robot2 + total_7_coh_robot3 +
+               total_7_coh_robot4 + total_7_coh_robot5 + total_7_coh_robot6)
+total_7_align = (total_7_align_robot1 + total_7_align_robot2 + total_7_align_robot3 +
+               total_7_align_robot4 + total_7_align_robot5 + total_7_align_robot6)
+ 
+total_13_sep = (total_13_sep_robot1 + total_13_sep_robot2 + total_13_sep_robot3 +
+               total_13_sep_robot4 + total_13_sep_robot5 + total_13_sep_robot6)
+total_13_coh = (total_13_coh_robot1 + total_13_coh_robot2 + total_13_coh_robot3 +
+               total_13_coh_robot4 + total_13_coh_robot5 + total_13_coh_robot6)
+total_13_align = (total_13_align_robot1 + total_13_align_robot2 + total_13_align_robot3 +
+               total_13_align_robot4 + total_13_align_robot5 + total_13_align_robot6)
+ 
+
+total_19_sep = (total_19_sep_robot1 + total_19_sep_robot2 + total_19_sep_robot3 +
+               total_19_sep_robot4 + total_19_sep_robot5 + total_19_sep_robot6)
+total_19_coh = (total_19_coh_robot1 + total_19_coh_robot2 + total_19_coh_robot3 +
+               total_19_coh_robot4 + total_19_coh_robot5 + total_19_coh_robot6)
+total_19_align = (total_19_align_robot1 + total_19_align_robot2 + total_19_align_robot3 +
+               total_19_align_robot4 + total_19_align_robot5 + total_19_align_robot6)
+ 
+
+
+fvalue_sep3, pvalue_sep3 = stats.f_oneway(total_7_sep,total_13_sep,total_19_sep)
+fvalue_coh3, pvalue_coh3 = stats.f_oneway(total_7_coh,total_13_coh,total_19_coh)
+fvalue_align3, pvalue_align3 = stats.f_oneway(total_7_align,total_13_align,total_19_align)
+print("Research Question 3 --> Seperation F and P Value:")
+print(fvalue_sep3,pvalue_sep3)
+print("Research Question 3 --> Cohesion F and P Value:")
+print(fvalue_coh3,pvalue_coh3)
+print("Research Question 3 --> Alignment F and P Value:")
+print(fvalue_align3,pvalue_align3)
+
+# If pvalue < 0.05 --> Apply Tukey's Multi-Comparison Method to
+# find out between which subgroups there is a significant difference
+
+df7 = pd.DataFrame()
+df7['total_7_sep'] = total_7_sep
+df7['total_13_sep'] = total_13_sep
+df7['total_19_sep'] = total_19_sep
+
+df8 = pd.DataFrame()
+df8['total_7_coh'] = total_7_coh
+df8['total_13_coh'] = total_13_coh
+df8['total_19_coh'] = total_19_coh
+
+df9 = pd.DataFrame()
+df9['total_7_align'] = total_7_align
+df9['total_13_align'] = total_13_align
+df9['total_19_align'] = total_19_align
+
+# Stack the data (and rename columns):
+stacked_data7 = df7.stack().reset_index()
+stacked_data7 = stacked_data7.rename(columns={'level_0': 'index',
+                                            'level_1': 'seperation',
+                                            0:'total violation'})
+stacked_data8 = df8.stack().reset_index()
+stacked_data8 = stacked_data8.rename(columns={'level_0': 'index',
+                                            'level_1': 'cohesion',
+                                            0:'total violation'})
+
+stacked_data9 = df9.stack().reset_index()
+stacked_data9 = stacked_data9.rename(columns={'level_0': 'index',
+                                            'level_1': 'alignment',
+                                            0:'total violation'})
+                                    
+#print(stacked_data1)
+MultiComp7 = MultiComparison(stacked_data7['total violation'],stacked_data7['seperation'])
+MultiComp8 = MultiComparison(stacked_data8['total violation'],stacked_data8['cohesion'])
+MultiComp9 = MultiComparison(stacked_data9['total violation'],stacked_data9['alignment'])
+
+statistic_txt.write(str(MultiComp7.tukeyhsd().summary()))
+statistic_txt.write("\n")
+statistic_txt.write(str(MultiComp8.tukeyhsd().summary()))
+statistic_txt.write("\n") 
+statistic_txt.write(str(MultiComp9.tukeyhsd().summary()))   
+statistic_txt.write("\n")  
+statistic_txt.close() #to change file access modes  
