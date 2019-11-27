@@ -7,82 +7,8 @@ from geometry_msgs.msg import Twist, PoseStamped, Pose
 from util import Vector2, angle_diff
 
 
-def get_agent_velocity(agent):
-    """Return agent velocity as Vector2 instance."""
-    vel = Vector2()
-    vel.x = agent.twist.twist.linear.x
-    vel.y = agent.twist.twist.linear.y
-    return vel
-
-
-def get_agent_position(agent):
-    """Return agent position as Vector2 instance."""
-    pos = Vector2() 
-    pos.x = agent.pose.pose.position.x
-    pos.y = agent.pose.pose.position.y
-    return pos
-
-def get_leader_position(leader):
-    """Return obstacle position as Vector2 instance."""
-    pos = Vector2()
-    pos.x = leader.position.x
-    pos.y = leader.position.y
-    return pos
-
-
-def get_obst_position(obst):
-    """Return obstacle position as Vector2 instance."""
-    pos = Vector2()
-    pos.x = obst.position.x
-    pos.y = obst.position.y
-    return pos
-
-
 class Boid(object):
-    """
-    An implementation of Craig Reynolds' flocking rules and boid objects.
-
-    Each boid (bird-oid object) maneuvers based on the positions and velocities
-    of its nearby flockmates. Computation is based on three components:
-    1) alignment: steer towards the average heading of local flockmates
-    2) cohesion: steer to move toward the average position of local flockmates
-    3) separation: steer to avoid crowding local flockmates.
-    Additionally, 4th component, avoid, is implemented where boids steer away
-    from obstacles in their search radius.
-
-    Each component yields a force on boid. Total force then gives the
-    acceleration which is integrated to boid's velocity. Force and velocity are
-    limited to the specified amount.
-
-    State:
-        position (Vector2): Boid's position
-        velocity (Vector2): Boid's velocity
-
-    Parameters:
-        mass (double): Boid's mass
-        alignment_factor (double): Weight for alignment component
-        cohesion_factor (double): Weight for cohesion component
-        separation_factor (double): Weight for separation component
-        avoid_factor (double): Weight for obstacle avoiding component
-        max_speed (double): Velocity upper limit
-        max_force (double): Force upper limit
-        friction (double): Constant friction force
-        crowd_radius (double): Radius to avoid crowding
-        search_radius (double): Boid's sensing radius
-        avoid_radius (double): Radius to avoid obstacles
-
-    Methods:
-        update_parameters(self): Save parameters in class variables
-        compute_alignment(self, nearest_agents): Return alignment component
-        compute_cohesion(self, nearest_agents): Return cohesion component
-        compute_separation(self, nearest_agents): Return separation component
-        compute_avoids(self, avoids): Return avoid component
-        compute_velocity(self, my_agent, nearest_agents, avoids):
-            Compute total velocity based on all components
-    """
-
     def __init__(self, initial_velocity_x, initial_velocity_y, wait_count, start_count, frequency):
-        """Create an empty boid and update parameters."""
         self.position = Vector2()
         self.velocity = Vector2()
         self.mass = 0.18                # Mass of Sphero robot in kilograms
@@ -260,3 +186,29 @@ class Boid(object):
             #self.viz_components['velocity'] = self.velocity
             #self.viz_components['estimated'] = self.old_velocity
             return vel, self.viz_components
+
+def get_agent_velocity(agent):
+    vel = Vector2()
+    vel.x = agent.twist.twist.linear.x
+    vel.y = agent.twist.twist.linear.y
+    return vel
+
+
+def get_agent_position(agent):
+    pos = Vector2() 
+    pos.x = agent.pose.pose.position.x
+    pos.y = agent.pose.pose.position.y
+    return pos
+
+def get_leader_position(leader):
+    pos = Vector2()
+    pos.x = leader.position.x
+    pos.y = leader.position.y
+    return pos
+
+
+def get_obst_position(obst):
+    pos = Vector2()
+    pos.x = obst.position.x
+    pos.y = obst.position.y
+    return pos
