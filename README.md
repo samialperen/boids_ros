@@ -11,10 +11,6 @@ $ sudo apt-get install python-pandas
 ```
 $ sudo apt-get install ros-kinetic-map-server
 ```
-* Install teleop-key (Optional) (Install only if you want to move leader via keyboard)
-```
-$ sudo apt-get install ros-kinetic-teleop-twist-keyboard
-```
 ## Installation
 
 Simply clone this repository inside ROS workspace and run `catkin_make` in workspace root.
@@ -23,7 +19,7 @@ Simply clone this repository inside ROS workspace and run `catkin_make` in works
 
 **Move Leader via Keyboard**:
 ```
-$ rosrun teleop_twist_keyboard teleop_twist_keyboard.py cmd_vel:=/robot_0/cmd_vel
+$ rosrun boids_ros boids_teleop.py
 ```
 
 
