@@ -17,7 +17,11 @@
 
 	<arg name="node_start_delay" default="1.8" />  
 	<!-- Move leader -->
+	<arg name="enable_leader_controller" default="true" />
+
+	<group if="$(arg enable_leader_controller)">
 	<node pkg="boids_ros" type="leader_controller.py" launch-prefix="bash -c 'sleep $(arg node_start_delay); $0 $@' "  name="leader_controller" output="screen"/>
+    </group>
 	
 	<!-- Record Bagfile for data_analyzer -->
 	<arg name="bagname"/>
