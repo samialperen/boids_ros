@@ -1,5 +1,7 @@
 ## About
-forked from https://github.com/mkrizmancic/sphero_formation .
+forked from https://github.com/mkrizmancic/sphero_formation and modified.
+
+[Here](https://youtu.be/RTcC8k2Nvyw) is the link for the project implemented in this project.
 
 ## Prerequisities
 Tested on Ubuntu 16.04 and ROS Kinetic
